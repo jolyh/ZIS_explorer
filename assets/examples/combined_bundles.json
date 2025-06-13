@@ -1,0 +1,78 @@
+[
+    {
+        "description": "Description here",
+        "integration": "integration_name",
+        "name": "Description here",
+        "uuid": "4b9625e5-3b6f-494c-9dc1-e71a33b143e6",
+        "zendesk_account_id": 1234567890,
+        "zis_template_version": "2019-10-14",
+        "content": {
+            "uuid": "4b9625e5-3b6f-494c-9dc1-e71a33b143e6",
+            "name": "Description here",
+            "integration": "integration_name",
+            "zendesk_account_id": 1234567890,
+            "description": "Description here",
+            "zis_template_version": "2019-10-14",
+            "resources": {
+                "Action": {
+                    "type": "ZIS::Action::Http",
+                    "properties": {
+                        "definition": {
+                            "connectionName": "zendesk",
+                            "method": "GET",
+                            "path.$": "/api/v2/path.json"
+                        },
+                        "name": "Action"
+                    }
+                },
+                "Flow": {
+                    "type": "ZIS::Flow",
+                    "properties": {
+                        "definition": {
+                            "StartAt": "StepWithAnAction",
+                            "States": {
+                                "StepWithAnAction": {
+                                    "ActionName": "zis:integration_name:action:Action",
+                                    "ResultPath": "$.result",
+                                    "Type": "Action"
+                                }
+                            }
+                        },
+                        "name": "Flow"
+                    }
+                },
+                "Jobspec": {
+                    "type": "ZIS::JobSpec",
+                    "properties": {
+                        "event_source": "support",
+                        "event_type": "user.UserAliasChanged",
+                        "flow_name": "zis:integration_name:flow:Flow",
+                        "name": "Jobspec"
+                    }
+                }
+            }
+        },
+        "job_specs": [
+            {
+                "event_source": "support",
+                "event_type": "user.UserAliasChanged",
+                "flow_name": "zis:integration_name:flow:Flow",
+                "installed": true,
+                "integration": "integration_name",
+                "name": "Jobspec",
+                "uuid": "d89e9965-c879-4b7a-9eb4-32efc34bb877"
+            }
+        ]
+    },
+    {
+        "other_bundle" : "and associated properties",
+        "other_content" : {
+            "bundle" : "and associated properties"
+        },
+        "other_job_specs" : [
+            {
+                "job_specs": "and associated properties"
+            }
+        ]
+    }
+]
