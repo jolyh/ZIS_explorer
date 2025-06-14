@@ -1,6 +1,5 @@
 let client;
 
-// TODO - Add error handling and actually catch stuff
 // TODO - Caching ? save result in files?
 
 export const fetchIntegrations = async () => {
@@ -10,10 +9,10 @@ export const fetchIntegrations = async () => {
             url: `/api/services/zis/registry/integrations`,
             type: 'GET'
         });
-        console.log('Response from Integrations fetched:', result);
+        //console.log('Response from Integrations fetched:', result);
         return result.integrations; 
     } catch (error) {
-        console.error('Error fetching integrations:', error);
+        displayAlertOnError('Error fetching integration job_specs');
         return [];
         //throw error;
     }
@@ -26,10 +25,10 @@ export const fetchIntegrationBundles = async (integration_name) => {
             url: `/api/services/zis/registry/${integration_name}/bundles`,
             type: 'GET'
         });
-        console.log('Response from Integration bundles fetched:', result);
+        //console.log('Response from Integration bundles fetched:', result);
         return result.bundles; 
     } catch (error) {
-        console.error('Error fetching integration bundles:', error);
+        displayAlertOnError('Error fetching integration job_specs');
         return [];
         //throw error;
     }
@@ -42,10 +41,10 @@ export const fetchIntegrationBundleById = async (integration_name, uuid) => {
             url: `/api/services/zis/registry/${integration_name}/bundles/${uuid}`,
             type: 'GET'
         });
-        console.log('Response from Integration bundles fetched:', result);
+        //console.log('Response from Integration bundles fetched:', result);
         return result; 
     } catch (error) {
-        console.error('Error fetching integration bundles:', error);
+        displayAlertOnError('Error fetching integration job_specs');
         return [];
         //throw error;
     }
@@ -58,10 +57,10 @@ export const fetchIntegrationJobspecs = async (integration_name) => {
             url: `/api/services/zis/registry/${integration_name}/job_specs`,
             type: 'GET'
         });
-        console.log('Response from Integration job_specs fetched:', result);
+        //console.log('Response from Integration job_specs fetched:', result);
         return result.job_specs; 
     } catch (error) {
-        console.error('Error fetching integration job_specs:', error);
+        displayAlertOnError('Error fetching integration job_specs');
         return [];
         //throw error;
     }
@@ -78,8 +77,20 @@ export const reconcileJobspecsToBundles = (bundles, job_specs) => {
             job_specs: matchingJobSpecs
         };
     });
-    console.log('Reconciled bundles with job_specs:', reconciled);
+    //console.log('Reconciled bundles with job_specs:', reconciled);
     return reconciled;
+}
+
+// Reconcile bundles with job_specs
+// The jobspecs do not link to the bundles directly, so we parse the content of the bundle.
+const displayAlertOnError = (errorMessage, error) => {
+    console.error(errorMessage, error);
+    const alertMessage = `An error occurred: ${errorMessage}`;
+    client.invoke('notify', alertMessage, 'error');
+}
+
+export const displayZendeskNotification = (message, notificationType) => {
+    client.invoke('notify', message, notificationType);
 }
 
 (async () => {

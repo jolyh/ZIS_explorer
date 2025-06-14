@@ -4,16 +4,22 @@ This app allows you to easily visualise the ZIS bundles and installed jobspecs a
 
 ### The following information is displayed:
 
-* List of your account's integration
-* For the selected integration, list of all the bundles associated
-* List of all the job spec associated with a bundle
-* Preview of the bundle
+* List of your account's integration.
+* For the selected integration, list of all the bundles associated.
+* List of all the job spec associated with a bundle.
+* Preview of the bundle.
+* Preview can content can be copied and preview can be expanded to take more screenspace.
 
 Please submit bug reports to [Insert Link](). Pull requests are welcome.
 
 ### Screenshot(s):
-If there's no screenshot here, then I haven't uploaded one yet.
-[put your screenshots down here.]
+
+![Screenshot of the app without the preview open](/assets/screenshots/app_visual_no_preview.png "App without preview")
+
+![Screenshot of the app with the preview open](/assets/screenshots/app_visual_with_preview.png "App with bundle preview open")
+
+### Dependencies
+This apps is using [Vue.js](https://vuejs.org/guide/introduction.html) imported using unpkg following [Vue.js quickstart guide](https://vuejs.org/guide/quick-start.html#using-the-global-build).
 
 ### Testing 
 * Configure `zcli` on your desktop. 
