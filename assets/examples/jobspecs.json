@@ -1,20 +1,19 @@
 {
-    "job_specs": [
-        {
-            "event_source": "support",
-            "event_type": "user.UserAliasChanged",
-            "flow_name": "zis:integration_name:flow:Flow",
-            "installed": true,
-            "integration": "integration_name",
-            "name": "Jobspec",
-            "uuid": "d89e9965-c879-4b7a-9eb4-32efc34bb877"
-        },
-        {
-        }
-    ],
-    "meta": {
-        "after": "dc0e6e9b-dfd2-47d2-a8a9-759bcea9767b",
-        "before": "d89e9965-c879-4b7a-9eb4-32efc34bb877",
-        "has_more": false
+  "job_specs": [
+    {
+      "description": "https://developer.zendesk.com/api-reference/integration-services/registry/jobspecs/#list-jobspecs",
+      "event_source": "support",
+      "event_type": "ticket.TicketCreated",
+      "flow_name": "my_flow",
+      "installed": true,
+      "integration": "my_integration",
+      "name": "my_job_spec",
+      "uuid": "eacd79f1-acf5-4f1c-939c-0bd941378ed8"
     }
+  ],
+  "meta": {
+    "after": "first_jobspec",
+    "before": "twentieth_jobspec",
+    "has_more": true
+  }
 }

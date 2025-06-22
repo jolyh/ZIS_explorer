@@ -1,6 +1,7 @@
-# App name
+# ZIS Explorer
 
 This app allows you to easily visualise the ZIS bundles and installed jobspecs associated with your Zendesk account's integration(s).
+You can preview bundle content and upload new ones as well as see job specs statuses and manage them.
 
 ### The following information is displayed:
 
@@ -19,6 +20,7 @@ Please submit bug reports to [Insert Link](). Pull requests are welcome.
 ![Screenshot of the app with the preview open](/assets/screenshots/app_visual_with_preview.png "App with bundle preview open")
 
 ### Dependencies
+
 This apps is using [Vue.js](https://vuejs.org/guide/introduction.html) imported using unpkg following [Vue.js quickstart guide](https://vuejs.org/guide/quick-start.html#using-the-global-build).
 
 ### Testing 

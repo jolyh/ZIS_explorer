@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <style>
+    /* Matching styles with main iframe */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      max-width: 600px;
+      height: auto;
+      color: #333;
+    }
+
+    h1 {
+      color: #03a9f4;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .notice {
+      margin-top: 15px;
+      padding: 10px;
+      background-color: #e3f2fd;
+      border-left: 4px solid #03a9f4;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #01579b;
+    }
+
+    .file-input-container {
+      margin-bottom: 20px;
+    }
+
+    .custom-file-input {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .custom-file-input input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .file-input-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 15px;
+      background: linear-gradient(to right, #03a9f4, #00bcd4);
+      color: white;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .file-input-label:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .file-input-label svg {
+      margin-right: 8px;
+      width: 18px;
+      height: 18px;
+    }
+
+    .file-name {
+      margin-top: 10px;
+      padding: 8px;
+      background-color: #f5f5f5;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    .btn {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      margin-left: 10px;
+    }
+
+    .btn svg {
+      margin-right: 5px;
+      width: 16px;
+      height: 16px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(to right, #03a9f4, #00bcd4);
+      color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: #f5f5f5;
+      color: #666;
+    }
+
+    .btn-secondary:hover {
+      background-color: #e0e0e0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <script src="https://static.zdassets.com/zendesk_app_framework_sdk/2.0/zaf_sdk.min.js"></script>
+
+  <h1 id="title">Loading...</h1>
+  <div id="file_upload_container" class="file-input-container" style="display: none;">
+    <div class="custom-file-input">
+      <label id="input_label" class="file-input-label">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+          <polyline points="13 2 13 9 20 9"></polyline>
+        </svg>
+        Choose JSON File
+        <input type="file" id="input" accept=".json" />
+      </label>
+    </div>
+  </div>
+
+  <div id="notice" class="notice" style="display: none;"></div>
+
+  <div class="button-container">
+    <button id="cancel_button" class="btn btn-secondary">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+      Cancel
+    </button>
+    <button id="confirm_button" class="btn btn-primary">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      Confirm
+    </button>
+  </div>
+
+  <script type="module">
+    import {
+      // jobsepcs
+      installJobspec,
+      uninstallJobspec,
+      // bundles
+      uploadBundle,
+      deleteBundle,
+      // modal
+      getActionFromModalUrl,
+      displayZendeskNotification,
+      closeModal
+    } from './scripts/zendesk_api.js'
+
+    const goal = getActionFromModalUrl();
+    if (!goal) {
+      console.error('No goal found in the modal URL');
+      displayZendeskNotification('No goal found in the modal URL', 'error');
+      closeModal();
+    }
+
+    const bundleFileInput = document.getElementById('input');
+    document.getElementById('input').addEventListener('change', function (e) {
+      const fileName = e.target.files.length > 0 ? e.target.files[0].name : 'No file selected';
+      const fileNameDisplay = document.getElementById('input_label');
+      fileNameDisplay.textContent = fileName;
+    });
+    const confirmButton = document.getElementById('confirm_button');
+    const cancelButton = document.getElementById('cancel_button');
+
+    const parseJsonFile = async (file) => {
+      return new Promise((resolve, reject) => {
+        const fileReader = new FileReader()
+        fileReader.onload = event => resolve(JSON.parse(event.target.result))
+        fileReader.onerror = error => reject(error)
+        fileReader.readAsText(file)
+      })
+    }
+
+    const effect = async () => {
+      if (goal.jobspec && goal.action === 'install') {
+        return await installJobspec(goal.integration, goal.jobspec);
+      } else if (goal.jobspec && goal.action === 'uninstall') {
+        return await uninstallJobspec(goal.integration, goal.jobspec);
+      } else if (goal.bundleId && goal.action === 'install') {
+        var file = document.getElementById('input').files[0];
+        if (!file) { return null; }
+        const bundle = await parseJsonFile(file)
+        if (!bundle) {
+          displayZendeskNotification('Invalid bundle file', 'error');
+          return null;
+        }
+        const content = JSON.stringify(bundle, null, 2);
+        return await uploadBundle(goal.integration, content);
+      } else if (goal.bundleId && goal.action === 'uninstall') {
+        return await deleteBundle(goal.integration, goal.bundleId);
+      } else {
+        console.error('No jobspec or bundleId provided for action: ', goal);
+        return null
+      }
+    }
+
+    const confirmModal = async () => {
+      // This function will be called when the user confirms the action
+      console.log('Confirmed:', goal);
+
+      confirmButton.disabled = true;
+      confirmButton.textContent = 'Processing...';
+      var result = await effect();
+
+      if (result) {
+        displayZendeskNotification(`Successfully ${goal.action}ed the ${goal.jobspec ? `jobspec ${goal.jobspec}` : `bundle ${goal.bundleId}`}. Refreshing...`, 'success');
+      } else {
+        displayZendeskNotification(`Failed to ${goal.action} the ${goal.jobspec ? goal.jobspec : `bundle ${goal.bundleId}`}`, 'error');
+      }
+      closeModal()
+    };
+    const cancelModal = () => {
+      // This function will be called when the user confirms the action
+      console.log('Cancelled:', goal);
+      closeModal()
+    };
+
+    // UI setup
+    function setUp() {
+      const title = document.getElementById('title');
+      const fileUploadContainer = document.getElementById('file_upload_container');
+      const notice = document.getElementById('notice');
+
+      // Set up button event listeners
+      confirmButton.addEventListener('click', confirmModal);
+      cancelButton.addEventListener('click', cancelModal);
+
+      // Set default notice text
+      notice.textContent = 'This operation cannot be undone.';
+
+      // Configure UI based on the action
+      if (goal.action === 'install') {
+        if (goal.jobspec) {
+          title.textContent = `Install jobspec ${goal.jobspec}`;
+          notice.style.display = 'block';
+        } else if (goal.bundleId) {
+          title.textContent = 'Upload bundle';
+          notice.textContent = 'Please upload a valid JSON file containing the bundle configuration.';
+          notice.style.display = 'block';
+          fileUploadContainer.style.display = 'block';
+        }
+      } else if (goal.action === 'uninstall') {
+        if (goal.jobspec) {
+          title.textContent = `Uninstall jobspec ${goal.jobspec}`;
+          notice.style.display = 'block';
+        } else if (goal.bundleId) {
+          title.textContent = `Uninstall bundle ${goal.bundleId}`;
+          notice.style.display = 'block';
+        }
+      } else {
+        title.textContent = 'Unknown Action';
+        notice.textContent = 'Invalid action specified.';
+        notice.style.display = 'block';
+        confirmButton.disabled = true;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', setUp);
+  </script>
+
+</body>

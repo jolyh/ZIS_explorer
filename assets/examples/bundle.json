@@ -1,0 +1,36 @@
+{
+  "description": "https://developer.zendesk.com/api-reference/integration-services/registry/bundles/#show-bundle-by-uuid",
+  "integration": "my_integration",
+  "name": "example bundle",
+  "resources": {
+    "example_flow": {
+      "properties": {
+        "definition": {
+          "StartAt": "HelloWorld",
+          "States": {
+            "HelloWorld": {
+              "End": true,
+              "Result": "Hello World!",
+              "ResultPath": "$.messages",
+              "Type": "Pass"
+            }
+          }
+        },
+        "name": "my_flow"
+      },
+      "type": "ZIS::Flow"
+    },
+    "example_job_spec": {
+      "properties": {
+        "event_source": "support",
+        "event_type": "ticket.TicketCreated",
+        "flow_name": "zis:example:flow:my_flow",
+        "name": "my_job_Spec"
+      },
+      "type": "ZIS::JobSpec"
+    }
+  },
+  "uuid": "5c722550-4180-4b64-9bcd-f8e38baac15d",
+  "zendesk_account_id": 12345,
+  "zis_template_version": "2019-10-14"
+}
