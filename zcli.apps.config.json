@@ -1,0 +1,7 @@
+{
+  "parameters": {
+    "allow_bundle_upload": true,
+    "allow_bundle_deletion": true,
+    "allow_jobspec_update": true
+  }
+}

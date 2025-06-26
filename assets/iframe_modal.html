@@ -194,7 +194,7 @@
     }
 
     const bundleFileInput = document.getElementById('input');
-    document.getElementById('input').addEventListener('change', function (e) {
+    bundleFileInput.addEventListener('change', function (e) {
       const fileName = e.target.files.length > 0 ? e.target.files[0].name : 'No file selected';
       const fileNameDisplay = document.getElementById('input_label');
       fileNameDisplay.textContent = fileName;
@@ -217,7 +217,7 @@
       } else if (goal.jobspec && goal.action === 'uninstall') {
         return await uninstallJobspec(goal.integration, goal.jobspec);
       } else if (goal.bundleId && goal.action === 'install') {
-        var file = document.getElementById('input').files[0];
+        var file = bundleFileInput.files.length > 0 ? bundleFileInput.files[0] : null;
         if (!file) { return null; }
         const bundle = await parseJsonFile(file)
         if (!bundle) {

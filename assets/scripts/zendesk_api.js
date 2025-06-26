@@ -1,8 +1,70 @@
 let client = null;
 let modalClient = null;
+let appSettings = null;
+
+let deleteBundleIds = []
 
 // TODO - Caching ? save result in files?
 // TODO - more error handling than notifications?
+
+const mockDataEnabled = true; // Set to true to enable mock data
+const mockLoadingEnabled = false; // Set to true to fake loading time for mock data
+const mockData = {
+    integrations: [],
+    bundles: [],
+    bundle: {},
+    job_specs: []
+};
+/**
+ * Returns mock data from a JSON file based on the requested type.
+ * The JSON files are located in the examples directory under the path "./assets/examples/file.json".
+ * @param {String} dataRequested - The type of data requested, e.g., 'integrations', 'bundles', 'bundle', 'job_specs'.
+ * @returns 
+ */
+const returnMockData = async (dataRequested) => {
+    try {
+        // Define the file path
+        const filePath = `./examples/${dataRequested}.json`;
+
+        // Use fetch API to get the file
+        const response = await fetch(filePath);
+
+        if (!response.ok) {
+            throw new Error(`Failed to load mock data from ${filePath}: ${response.status} ${response.statusText}`);
+        }
+
+        // Parse the JSON data
+        const data = await response.json();
+
+        // Return the appropriate property based on the requested data type
+        switch (dataRequested) {
+            case 'integrations':
+                return data.integrations || [];
+            case 'bundles':
+                return data.bundles || [];
+            case 'bundle':
+                return data || [];
+            case 'job_specs':
+                return data.job_specs || [];
+            default:
+                return data;
+        }
+    } catch (error) {
+        console.error(`Error loading mock data for ${dataRequested}:`, error);
+        displayAlertOnError(`Error loading mock data for ${dataRequested}`, error);
+        return [];
+    }
+}
+const wait = (milliseconds) => new Promise((resolve, _) => {
+    setTimeout(resolve, milliseconds);
+});
+
+const randomMockedWait = async () => { // min and max included 
+    if (!mockLoadingEnabled) {
+        return; // If mock loading is disabled, return immediately
+    }
+    return await wait((Math.floor(Math.random() * 3) + 1) * 1000);
+}
 
 /**
  * Fetch all integrations from the Zendesk Integration Service (ZIS) registry.
@@ -10,6 +72,12 @@ let modalClient = null;
  */
 export const fetchIntegrations = async () => {
     console.log('Fetching integrations...');
+    if (mockDataEnabled) {
+        await randomMockedWait(); // Simulate network delay for mock data
+        mockData.integrations = await returnMockData('integrations'); // Load mock data for integrations
+        return mockData.integrations; // Return mock data if enabled
+    }
+
     try {
         const result = await client.request({
             url: `/api/services/zis/registry/integrations`,
@@ -26,6 +94,12 @@ export const fetchIntegrations = async () => {
 // Bundles
 export const fetchBundles = async (integrationName) => {
     console.log('Fetching bundles...');
+    if (mockDataEnabled) {
+        await randomMockedWait(); // Simulate network delay for mock data
+        mockData.bundles = await returnMockData('bundles'); // Load mock data for integrations
+        return mockData.bundles; // Return mock data if enabled
+    }
+
     try {
         const result = await client.request({
             url: `/api/services/zis/registry/${integrationName}/bundles`,
@@ -40,6 +114,18 @@ export const fetchBundles = async (integrationName) => {
 }
 export const fetchBundle = async (integrationName, bundleId) => {
     console.log('Fetching bundle content...');
+    if (mockDataEnabled) {
+        await randomMockedWait(); // Simulate network delay for mock data
+        mockData.bundle = await returnMockData('bundle'); // Load mock data for integrations
+        return mockData.bundle; // Return mock data if enabled
+    }
+
+    // If the bundleId is in the deleteBundleIds array, we skip fetching it.
+    if (!integrationName || !bundleId || deleteBundleIds.includes(bundleId)) {
+        console.warn('Skipping fetchBundle due to missing parameters or bundle already deleted:', { integrationName, bundleId, deleteBundleIds });
+        return {};
+    }
+
     try {
         const result = await client.request({
             url: `/api/services/zis/registry/${integrationName}/bundles/${bundleId}`,
@@ -54,6 +140,11 @@ export const fetchBundle = async (integrationName, bundleId) => {
 }
 export const uploadBundle = async (integrationName, bundle) => {
     console.log('Uploading bundle content...');
+    if (mockDataEnabled) {
+        console.warn('Mock data upload for bundle is not implemented.');
+        return true; // Simulate success for mock data
+    }
+
     try {
         const result = await client.request({
             url: `/api/services/zis/registry/${integrationName}/bundles`,
@@ -69,11 +160,48 @@ export const uploadBundle = async (integrationName, bundle) => {
 }
 export const deleteBundle = async (integrationName, bundleId) => {
     console.log('Deleting bundle content...');
+    if (mockDataEnabled) {
+        console.warn('Mock data delete for bundle is not implemented.');
+        return true; // Simulate success for mock data
+    }
+
+    // The API for deleting bundles is not available in the ZIS API, so we use the inbound webhook to delete the bundle.
+    // This will be added soon.
+    /*
     try {
         const result = await client.request({
             url: `/api/services/zis/registry/${integrationName}/bundles/${bundleId}`,
             type: 'DELETE'
         });
+        return true;
+    } catch (error) {
+        displayAlertOnError('Error deleting bundle', error);
+        return false;
+    }
+    */
+   return await requestToInboundWebhook(JSON.stringify({
+        bundle: {
+            integration: integrationName,
+            uuid: bundleId
+        }
+    }))
+
+}
+
+const inboundWebhookAuth = `Basic ${btoa("username:pwd")}`; // Replace with your actual username and password
+const requestToInboundWebhook = async (data) => {
+    console.log('Requesting to inbound webhook for deleting bundle...');
+    try {
+        const result = await client.request({
+            url: `/api/services/zis/inbound_webhooks/generic/ingest/nfTTw_bC0knAkn79PFADZmd20s94QIj6KaT-285gcZjx`,
+            type: 'POST',
+            headers: {
+                Authorization: inboundWebhookAuth,
+            },
+            data: data
+        });
+        deleteBundleIds.push(data.bundle.uuid); // Store the bundle ID to delete later
+        console.log('Response from inbound webhook:', result);
         return true;
     } catch (error) {
         displayAlertOnError('Error deleting bundle', error);
@@ -85,6 +213,12 @@ export const deleteBundle = async (integrationName, bundleId) => {
 // Jobsecs
 export const fetchJobspecs = async (integrationName) => {
     console.log('Fetching job_specs...');
+    if (mockDataEnabled) {
+        await randomMockedWait(); // Simulate network delay for mock data
+        mockData.job_specs = await returnMockData('job_specs'); // Load mock data for integrations
+        return mockData.job_specs; // Return mock data if enabled
+    }
+
     try {
         const result = await client.request({
             url: `/api/services/zis/registry/${integrationName}/job_specs`,
@@ -99,6 +233,13 @@ export const fetchJobspecs = async (integrationName) => {
 }
 export const installJobspec = async (integrationName, jobspecName) => {
     console.log('Installing jobspecs...');
+    if (mockDataEnabled) {
+        await randomMockedWait(); // Simulate network delay for mock data
+        mockData.job_specs = await returnMockData('job_specs'); // Load mock data for integrations
+        mockData.job_specs[0].installed = true; // Simulate successful installation
+        return true;
+    }
+
     try {
         const result = await client.request({
             url: `/api/services/zis/registry/job_specs/install?job_spec_name=zis:${integrationName}:job_spec:${jobspecName}`,
@@ -112,6 +253,13 @@ export const installJobspec = async (integrationName, jobspecName) => {
 }
 export const uninstallJobspec = async (integrationName, jobspecName) => {
     console.log('Uninstalling job_specs...', integrationName, jobspecName);
+    if (mockDataEnabled) {
+        await randomMockedWait(); // Simulate network delay for mock data
+        mockData.job_specs = await returnMockData('job_specs'); // Load mock data for integrations
+        mockData.job_specs[0].installed = false; // Simulate successful uninstallation
+        return true;
+    }
+
     try {
         const result = await client.request({
             url: `/api/services/zis/registry/job_specs/install?job_spec_name=zis:${integrationName}:job_spec:${jobspecName}`,
@@ -128,6 +276,8 @@ export const uninstallJobspec = async (integrationName, jobspecName) => {
 // The jobspecs do not link to the bundles directly, so we parse the content of the bundle.
 export const reconcileJobspecsToBundles = (bundles, job_specs) => {
     console.log('Reconcile job_specs to bundles...');
+    console.log('bundles:', bundles);
+    console.log('job_specs:', job_specs);
     const reconciled = bundles.map(bundle => {
         const matchingJobSpecs = job_specs.filter(job_spec => bundle.content.resources.hasOwnProperty(job_spec.name));
         return {
@@ -150,7 +300,7 @@ export const reconcileJobspecsToBundles = (bundles, job_specs) => {
  * @param {String?} bundleId - UUID of the bundle to install or uninstall - Optional
  * @returns 
  */
-export const openActionModal = (integration, action, jobspec, bundleId, onclose = () => {}) => {
+export const openActionModal = (integration, action, jobspec, bundleId, onclose = () => { }) => {
 
     if (!integration || !action || (!jobspec && !bundleId)) {
         displayAlertOnError("Required parameters are missing for the modal action.");
@@ -163,7 +313,7 @@ export const openActionModal = (integration, action, jobspec, bundleId, onclose 
         url += `&jobspec=${jobspec}`;
     else if (bundleId)
         url += `&bundleId=${bundleId}`;
-        
+
     client.invoke('instances.create', {
         location: 'modal',
         url: url,
@@ -174,7 +324,7 @@ export const openActionModal = (integration, action, jobspec, bundleId, onclose 
     }).then((modalContext) => {
         // The modal is on screen now
         modalClient = client.instance(modalContext['instances.create'][0].instanceGuid);
-        // TODO define close modal here and save to the closeModal function?
+        // TODO make it so that modal avoid reloading if canceled
         modalClient.on('modal.close', () => {
             console.log('Modal closed');
             onclose(); // Call the provided onclose function
@@ -187,23 +337,23 @@ export const openActionModal = (integration, action, jobspec, bundleId, onclose 
 export const closeModal = () => {
     // TODO - defo needs better
     client.get('instances')
-    .then(function(instancesData) {
-        console.log('Instances data:', instancesData);
-        var instances = instancesData.instances;
-        for (var instanceGuid in instances) {
-            if (instances[instanceGuid].location === 'modal') {
-                return client.instance(instanceGuid);
+        .then(function (instancesData) {
+            console.log('Instances data:', instancesData);
+            var instances = instancesData.instances;
+            for (var instanceGuid in instances) {
+                if (instances[instanceGuid].location === 'modal') {
+                    return client.instance(instanceGuid);
+                }
             }
-        }
-    })
-    .then(function(modalInstance) {
-        modalInstance.invoke('destroy')
-        .then(() => {
-            console.log('Modal closed successfully');
-            modalClient = null; // Clear the modal client reference
         })
-    })
-    
+        .then(function (modalInstance) {
+            modalInstance.invoke('destroy')
+                .then(() => {
+                    console.log('Modal closed successfully');
+                    modalClient = null; // Clear the modal client reference
+                })
+        })
+
 }
 
 export const getActionFromModalUrl = () => {
@@ -222,12 +372,32 @@ const displayAlertOnError = (errorMessage, error) => {
     const alertMessage = `An error occurred: ${errorMessage}`;
     client.invoke('notify', alertMessage, 'error');
 }
-
 export const displayZendeskNotification = (message, notificationType) => {
     client.invoke('notify', message, notificationType);
 }
 
-(async () => {
+// Zendesk App Settings
+export const getAppSettings = async () => {
+    if (appSettings) {
+        console.log("Using cached app settings");
+        return appSettings.settings;
+    }
+    appSettings = await client.metadata();
+    console.log("fetchAppSettings called");
+    console.log(appSettings);
+    return appSettings.settings;
+}
+
+export const initClient = async () => {
+    if (client) {
+        console.warn("ZAFClient is already initialized.");
+        return client;
+    }
     client = ZAFClient.init();
-    console.log('ZAFClient initialized');
+    console.log("ZAFClient initialized");
+    return client;
+}
+
+(async () => {
+    client = await initClient()
 })();

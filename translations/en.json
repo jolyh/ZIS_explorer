@@ -1,5 +1,18 @@
 {
   "app": {
-    "todo" : "Todo"
+    "parameters": {
+      "allow_bundle_upload": { 
+        "label": "Allow bundle upload?",
+        "helpText": "Check this settings be able to upload ZIS bundle through the app."
+      },
+      "allow_bundle_deletion": { 
+        "label": "Allow bundle deletion?",
+        "helpText": "Check this setting to allow to deletion of bundle through the app."  
+      },
+      "allow_jobspec_update": { 
+        "label": "Allow to update job specs?", 
+        "helpText": "Check this settings to be able to install or uninstall job spec through the app." 
+      }
+    }
   }
 }

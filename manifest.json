@@ -2,16 +2,34 @@
   "name": "Zis Explorer",
   "author": {
     "name": "ajoly",
-    "email": "ajoly@zendesk.com"
+    "email": "ajoly@zendesk.com",
+    "url" : "https://github.com/jolyh/"
   },
   "defaultLocale": "en",
   "private": true,
   "location": {
     "support": {
       "nav_bar": "assets/iframe.html",
-       "modal": "assets/iframe_modal.html"
+      "modal": "assets/iframe_modal.html"
     }
   },
+  "parameters": [
+    {
+      "name": "allow_bundle_upload",
+      "type": "checkbox",
+      "default": false
+    },
+    {
+      "name": "allow_bundle_deletion",
+      "type": "checkbox",
+      "default": false
+    },
+    {
+      "name": "allow_jobspec_update",
+      "type": "checkbox",
+      "default": false
+    }
+  ],
   "version": "1.0.0",
   "frameworkVersion": "2.0"
 }

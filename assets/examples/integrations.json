@@ -3,10 +3,10 @@
     {
       "description": "https://developer.zendesk.com/api-reference/integration-services/registry/integrations/#list-integrations",
       "jwt_public_key": "The RSA Public Key to be saved",
-      "name": "my_integration",
+      "name": "my_mocked_integration",
       "zendesk_oauth_client": {
         "id": 10066,
-        "identifier": "zis_my_integration",
+        "identifier": "zis_my_mocked_integration",
         "secret": "************"
       }
     }

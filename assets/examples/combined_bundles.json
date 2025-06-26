@@ -1,56 +1,46 @@
 [
     {
-        "description": "Description here",
-        "integration": "integration_name",
-        "name": "Description here",
-        "uuid": "4b9625e5-3b6f-494c-9dc1-e71a33b143e6",
-        "zendesk_account_id": 1234567890,
+        "description": "https://developer.zendesk.com/api-reference/integration-services/registry/bundles/#show-bundle-by-uuid",
+        "integration": "my_integration",
+        "name": "example bundle",
+        "uuid": "5c722550-4180-4b64-9bcd-f8e38baac15d",
+        "zendesk_account_id": 12345,
         "zis_template_version": "2019-10-14",
         "content": {
-            "uuid": "4b9625e5-3b6f-494c-9dc1-e71a33b143e6",
-            "name": "Description here",
-            "integration": "integration_name",
-            "zendesk_account_id": 1234567890,
-            "description": "Description here",
-            "zis_template_version": "2019-10-14",
+            "description": "https://developer.zendesk.com/api-reference/integration-services/registry/bundles/#show-bundle-by-uuid",
+            "integration": "my_integration",
+            "name": "example bundle",
             "resources": {
-                "Action": {
-                    "type": "ZIS::Action::Http",
+                "example_flow": {
                     "properties": {
                         "definition": {
-                            "connectionName": "zendesk",
-                            "method": "GET",
-                            "path.$": "/api/v2/path.json"
-                        },
-                        "name": "Action"
-                    }
-                },
-                "Flow": {
-                    "type": "ZIS::Flow",
-                    "properties": {
-                        "definition": {
-                            "StartAt": "StepWithAnAction",
+                            "StartAt": "HelloWorld",
                             "States": {
-                                "StepWithAnAction": {
-                                    "ActionName": "zis:integration_name:action:Action",
-                                    "ResultPath": "$.result",
-                                    "Type": "Action"
+                                "HelloWorld": {
+                                    "End": true,
+                                    "Result": "Hello World!",
+                                    "ResultPath": "$.messages",
+                                    "Type": "Pass"
                                 }
                             }
                         },
-                        "name": "Flow"
-                    }
+                        "name": "my_flow"
+                    },
+                    "type": "ZIS::Flow"
                 },
-                "Jobspec": {
-                    "type": "ZIS::JobSpec",
+                "example_job_spec": {
                     "properties": {
                         "event_source": "support",
-                        "event_type": "user.UserAliasChanged",
-                        "flow_name": "zis:integration_name:flow:Flow",
-                        "name": "Jobspec"
-                    }
+                        "event_type": "ticket.TicketCreated",
+                        "flow_name": "zis:example:flow:my_flow",
+                        "name": "my_job_Spec"
+                    },
+                    "type": "ZIS::JobSpec"
                 }
-            }
+            },
+            "uuid": "5c722550-4180-4b64-9bcd-f8e38baac15d",
+            "zendesk_account_id": 12345,
+            "zis_template_version": "2019-10-14"
         },
         "job_specs": [
             {
@@ -65,13 +55,13 @@
         ]
     },
     {
-        "other_bundle" : "and associated properties",
-        "other_content" : {
-            "bundle" : "and associated properties"
+        "other_bundle": "and associated properties",
+        "other_content": {
+            "bundle": "and associated properties"
         },
-        "other_job_specs" : [
+        "other_job_specs": [
             {
-                "job_specs": "and associated properties"
+                "other_job_spec": "and associated properties"
             }
         ]
     }

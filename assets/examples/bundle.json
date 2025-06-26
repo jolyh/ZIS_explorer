@@ -1,6 +1,6 @@
 {
   "description": "https://developer.zendesk.com/api-reference/integration-services/registry/bundles/#show-bundle-by-uuid",
-  "integration": "my_integration",
+  "integration": "my_mocked_integration",
   "name": "example bundle",
   "resources": {
     "example_flow": {

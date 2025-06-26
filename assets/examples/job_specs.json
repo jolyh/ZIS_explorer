@@ -6,8 +6,8 @@
       "event_type": "ticket.TicketCreated",
       "flow_name": "my_flow",
       "installed": true,
-      "integration": "my_integration",
-      "name": "my_job_spec",
+      "integration": "my_mocked_integration",
+      "name": "example_job_spec",
       "uuid": "eacd79f1-acf5-4f1c-939c-0bd941378ed8"
     }
   ],
