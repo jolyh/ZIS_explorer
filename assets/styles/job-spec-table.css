@@ -1,0 +1,115 @@
+/* Inner table showing the job spec details */
+#job_spec_table .integration_bundles_inner_table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow-x: hidden;
+    word-break: break-all;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+#job_spec_table .integration_bundles_inner_table_header_row {
+    background: linear-gradient(to right, #4db6ac, #26a69a);
+    color: white;
+}
+
+#job_spec_table .integration_bundles_inner_table_row th {
+    text-align: left;
+    padding: 10px 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+/* Set specific widths for the inner table columns */
+/* job name column */
+#job_spec_table .integration_bundles_inner_table th:nth-child(1),
+#job_spec_table .integration_bundles_inner_table td:nth-child(1) {
+    width: 30%;
+}
+
+/* event source column */
+#job_spec_table .integration_bundles_inner_table th:nth-child(2),
+#job_spec_table .integration_bundles_inner_table td:nth-child(2) {
+    width: 20%;
+}
+
+/* event type column */
+#job_spec_table .integration_bundles_inner_table th:nth-child(3),
+#job_spec_table .integration_bundles_inner_table td:nth-child(3) {
+    width: 20%;
+}
+
+/* status column */
+#job_spec_table .integration_bundles_inner_table th:nth-child(4),
+#job_spec_table .integration_bundles_inner_table td:nth-child(4) {
+    width: 20%;
+    text-align: center;
+}
+
+/* update column */
+#job_spec_table .integration_bundles_inner_table th:nth-child(5),
+#job_spec_table .integration_bundles_inner_table td:nth-child(5) {
+    width: 10%;
+    text-align: center;
+}
+
+#job_spec_table .integration_bundles_inner_table_body_row {
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+#job_spec_table .integration_bundles_inner_table_body_row:hover {
+    background-color: #f9f9f9;
+}
+
+#job_spec_table .integration_bundles_inner_table_body_row td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+}
+
+#job_spec_table .integration_bundles_inner_table_body_row_installed_span {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* Container for the inner table */
+#job_spec_table .jobspec-container {
+    padding: 15px 20px;
+    background-color: #f5f7fa;
+    border-bottom: 1px solid #e0e0e0;
+    border-left: 4px solid #26a69a;
+    transition: all 0.3s ease;
+}
+
+#job_spec_table .jobspec-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+#job_spec_table .jobspec-title svg {
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+    color: #26a69a;
+}
+
+/* Row inly displayed when there's no bundle */
+#job_spec_table #no_bundle_row {
+    padding: 12px 15px;
+    text-align: center;
+    color: #999;
+}

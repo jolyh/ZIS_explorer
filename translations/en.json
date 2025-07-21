@@ -1,5 +1,8 @@
 {
   "app": {
+    "name": "ZIS Explorer",
+    "short_description": "Zendesk Integration Services Explorer",
+    "long_description": "This app allows you to explore Zendesk Integration Services (ZIS) bundles, jobs, and job specs. You can view details, upload bundles, and manage job specifications.",
     "parameters": {
       "allow_bundle_upload": { 
         "label": "Allow bundle upload?",

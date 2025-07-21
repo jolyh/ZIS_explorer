@@ -7,10 +7,18 @@
       "uuid": "5c722550-4180-4b64-9bcd-f8e38baac15d",
       "zendesk_account_id": 12345,
       "zis_template_version": "2019-10-14"
+    },
+    {
+      "description": "https://developer.zendesk.com/api-reference/integration-services/registry/bundles/#list-bundles",
+      "integration": "my_mocked_integration",
+      "name": "another example bundle",
+      "uuid": "5c722550-4180-4b64-9bcd-f8e38baac15e",
+      "zendesk_account_id": 12345,
+      "zis_template_version": "2019-10-14"
     }
   ],
   "meta": {
-    "after": "5c722550-4180-4b64-9bcd-f8e38baac15d",
+    "after": "5c722550-4180-4b64-9bcd-f8e38baac15e",
     "before": "5c722550-4180-4b64-9bcd-f8e38baac15d",
     "has_more": true
   }

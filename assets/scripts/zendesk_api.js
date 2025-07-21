@@ -1,5 +1,4 @@
 let client = null;
-let modalClient = null;
 let appSettings = null;
 
 let deleteBundleIds = []
@@ -7,7 +6,7 @@ let deleteBundleIds = []
 // TODO - Caching ? save result in files?
 // TODO - more error handling than notifications?
 
-const mockDataEnabled = true; // Set to true to enable mock data
+const mockDataEnabled = false; // Set to true to enable mock data
 const mockLoadingEnabled = false; // Set to true to fake loading time for mock data
 const mockData = {
     integrations: [],
@@ -22,6 +21,8 @@ const mockData = {
  * @returns 
  */
 const returnMockData = async (dataRequested) => {
+    if (mockLoadingEnabled)
+        await randomMockedWait(); // Simulate network delay for mock data - mostly for UI testing
     try {
         // Define the file path
         const filePath = `./examples/${dataRequested}.json`;
@@ -58,11 +59,11 @@ const returnMockData = async (dataRequested) => {
 const wait = (milliseconds) => new Promise((resolve, _) => {
     setTimeout(resolve, milliseconds);
 });
-
-const randomMockedWait = async () => { // min and max included 
-    if (!mockLoadingEnabled) {
-        return; // If mock loading is disabled, return immediately
-    }
+/** 
+ * Simulates a random wait time between 1 and 3 seconds.
+ * This is used to simulate network delay for mock data.
+ */
+const randomMockedWait = async () => { 
     return await wait((Math.floor(Math.random() * 3) + 1) * 1000);
 }
 
@@ -73,7 +74,6 @@ const randomMockedWait = async () => { // min and max included
 export const fetchIntegrations = async () => {
     console.log('Fetching integrations...');
     if (mockDataEnabled) {
-        await randomMockedWait(); // Simulate network delay for mock data
         mockData.integrations = await returnMockData('integrations'); // Load mock data for integrations
         return mockData.integrations; // Return mock data if enabled
     }
@@ -95,7 +95,6 @@ export const fetchIntegrations = async () => {
 export const fetchBundles = async (integrationName) => {
     console.log('Fetching bundles...');
     if (mockDataEnabled) {
-        await randomMockedWait(); // Simulate network delay for mock data
         mockData.bundles = await returnMockData('bundles'); // Load mock data for integrations
         return mockData.bundles; // Return mock data if enabled
     }
@@ -115,7 +114,6 @@ export const fetchBundles = async (integrationName) => {
 export const fetchBundle = async (integrationName, bundleId) => {
     console.log('Fetching bundle content...');
     if (mockDataEnabled) {
-        await randomMockedWait(); // Simulate network delay for mock data
         mockData.bundle = await returnMockData('bundle'); // Load mock data for integrations
         return mockData.bundle; // Return mock data if enabled
     }
@@ -188,12 +186,12 @@ export const deleteBundle = async (integrationName, bundleId) => {
 
 }
 
-const inboundWebhookAuth = `Basic ${btoa("username:pwd")}`; // Replace with your actual username and password
+const inboundWebhookAuth = `Basic ${btoa("username:password")}`; // Replace with actual credentials or use a secure method to store them")}`
 const requestToInboundWebhook = async (data) => {
     console.log('Requesting to inbound webhook for deleting bundle...');
     try {
         const result = await client.request({
-            url: `/api/services/zis/inbound_webhooks/generic/ingest/nfTTw_bC0knAkn79PFADZmd20s94QIj6KaT-285gcZjx`,
+            url: `/api/services/zis/inbound_webhooks/generic/ingest/id`,
             type: 'POST',
             headers: {
                 Authorization: inboundWebhookAuth,
@@ -214,7 +212,6 @@ const requestToInboundWebhook = async (data) => {
 export const fetchJobspecs = async (integrationName) => {
     console.log('Fetching job_specs...');
     if (mockDataEnabled) {
-        await randomMockedWait(); // Simulate network delay for mock data
         mockData.job_specs = await returnMockData('job_specs'); // Load mock data for integrations
         return mockData.job_specs; // Return mock data if enabled
     }
@@ -234,7 +231,6 @@ export const fetchJobspecs = async (integrationName) => {
 export const installJobspec = async (integrationName, jobspecName) => {
     console.log('Installing jobspecs...');
     if (mockDataEnabled) {
-        await randomMockedWait(); // Simulate network delay for mock data
         mockData.job_specs = await returnMockData('job_specs'); // Load mock data for integrations
         mockData.job_specs[0].installed = true; // Simulate successful installation
         return true;
@@ -254,7 +250,6 @@ export const installJobspec = async (integrationName, jobspecName) => {
 export const uninstallJobspec = async (integrationName, jobspecName) => {
     console.log('Uninstalling job_specs...', integrationName, jobspecName);
     if (mockDataEnabled) {
-        await randomMockedWait(); // Simulate network delay for mock data
         mockData.job_specs = await returnMockData('job_specs'); // Load mock data for integrations
         mockData.job_specs[0].installed = false; // Simulate successful uninstallation
         return true;
@@ -289,83 +284,6 @@ export const reconcileJobspecsToBundles = (bundles, job_specs) => {
     return reconciled;
 }
 
-
-// Modal handling
-/**
- * Open a modal for installing or uninstalling a jobspec or bundle.
- * Requires an integration name and an action ('install' or 'uninstall') as well as either a jobspec name or a bundle UUID.
- * @param {String} integration - name of the integration - Required
- * @param {String} action - possible values: 'install', 'uninstall' - Required
- * @param {String?} jobspec - name of the jobspec to install or uninstall - Optional
- * @param {String?} bundleId - UUID of the bundle to install or uninstall - Optional
- * @returns 
- */
-export const openActionModal = (integration, action, jobspec, bundleId, onclose = () => { }) => {
-
-    if (!integration || !action || (!jobspec && !bundleId)) {
-        displayAlertOnError("Required parameters are missing for the modal action.");
-        console.error("Required parameters are missing for the modal action.", { integration, action, jobspec, bundleId });
-        return;
-    }
-
-    let url = `assets/iframe_modal.html?integration=${integration}&action=${action}`
-    if (jobspec)
-        url += `&jobspec=${jobspec}`;
-    else if (bundleId)
-        url += `&bundleId=${bundleId}`;
-
-    client.invoke('instances.create', {
-        location: 'modal',
-        url: url,
-        size: { // optional
-            width: '500px',
-            height: '300px'
-        }
-    }).then((modalContext) => {
-        // The modal is on screen now
-        modalClient = client.instance(modalContext['instances.create'][0].instanceGuid);
-        // TODO make it so that modal avoid reloading if canceled
-        modalClient.on('modal.close', () => {
-            console.log('Modal closed');
-            onclose(); // Call the provided onclose function
-            modalClient = null; // Clear the modal client reference
-        });
-    });
-
-}
-
-export const closeModal = () => {
-    // TODO - defo needs better
-    client.get('instances')
-        .then(function (instancesData) {
-            console.log('Instances data:', instancesData);
-            var instances = instancesData.instances;
-            for (var instanceGuid in instances) {
-                if (instances[instanceGuid].location === 'modal') {
-                    return client.instance(instanceGuid);
-                }
-            }
-        })
-        .then(function (modalInstance) {
-            modalInstance.invoke('destroy')
-                .then(() => {
-                    console.log('Modal closed successfully');
-                    modalClient = null; // Clear the modal client reference
-                })
-        })
-
-}
-
-export const getActionFromModalUrl = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    return {
-        integration: urlParams.get('integration'),
-        action: urlParams.get('action'),
-        jobspec: urlParams.get('jobspec'),
-        bundleId: urlParams.get('bundleId')
-    }
-}
-
 // Zendesk Notifications
 const displayAlertOnError = (errorMessage, error) => {
     console.error(errorMessage, error);
@@ -385,7 +303,9 @@ export const getAppSettings = async () => {
     appSettings = await client.metadata();
     console.log("fetchAppSettings called");
     console.log(appSettings);
-    return appSettings.settings;
+    var settings = appSettings.settings || {}; // should send null instead?
+    settings.isDebugMode = mockDataEnabled;
+    return settings;
 }
 
 export const initClient = async () => {
