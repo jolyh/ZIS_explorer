@@ -1,7 +1,18 @@
 export default {
-    props: ['integration', 'action', 'jobspec', 'bundle_id'],
+    props: ['action', 'target', 'target_id'],
     emits: ['on_confirm', 'on_cancel'],
     setup(props, ctx) {
+
+        /*
+        * Action modal is used to confirm actions like upload, delete, merge, edit, create, install, uninstall
+        * 'upload' -> upload a bundle
+        * 'delete' -> delete a bundle, configuration
+        * 'merge' -> merge changes into a configuration (takes new configuration and merges it with the existing one) - done by uploading a new file
+        * 'edit' -> edit a configuration (replaces the existing configuration with the new one) - done by uploading a new file
+        * 'create' -> create a new configuration - done by uploading a new file
+        * 'install' -> install a jobspec
+        * 'uninstall' -> uninstall a jobspec
+        */
 
         console.log('Modal setup', props);
         
@@ -13,30 +24,8 @@ export default {
                 fileReader.readAsText(file)
             })
         }
-        
-        // UI setup
-        let title = 'Loading...';
-        let notice = 'This operation cannot be undone.';
-        if (props.action === 'install') {
-            if (props.jobspec) {
-                title = `Install jobspec ${props.jobspec}`;
-            } else if (props.bundle_id) {
-                title = 'Upload bundle';
-                notice = 'Please upload a valid JSON file containing the bundle configuration.';
-            }
-        } else if (props.action === 'uninstall') {
-            if (props.jobspec) {
-                title = `Uninstall jobspec ${props.jobspec}`;
-            } else if (props.bundle_id) {
-                title = `Delete bundle ${props.bundle_id}`;
-            }
-        } else {
-            title = 'Unknown Action';
-            notice = 'Invalid action specified.';
-        }
 
         // UI events
-
         let currentFile = null;
         const onFileInputchanged = (e) => {
             console.log('File input changed', e);
@@ -46,8 +35,9 @@ export default {
             fileNameDisplay.textContent = fileName;
         }
 
+        // TODO do some check to disable the confirm button if no file is selected
+
         const confirm_button_clicked = async () => {
-            console.log('Confirm button clicked');
 
             const confirmButton = document.getElementById('confirm_button');
             confirmButton.disabled = true;
@@ -59,19 +49,59 @@ export default {
                 content = JSON.stringify(bundle, null, 2);
                 console.log('Parsed bundle:', content);
             }
-            ctx.emit('on_confirm', props.action, props.jobspec, props.bundle_id, content);
+            try {
+                ctx.emit('on_confirm', props.action, props.target, props.target_id, content);
+            } catch (error) {
+                console.error('Error emitting on_confirm:', error);
+            }
         }
         const cancel_button_clicked = () => {
             console.log('Cancel button clicked');
             ctx.emit('on_cancel');
         }
 
-        // TODO handle errors
+        // UI setup
+        let title = `${props.action.charAt(0).toUpperCase() + props.action.slice(1)} ${props.target} ${props.target_id ? props.target_id : ''}`;
+        let notice = 'This operation cannot be undone.';
+        switch (props.action) {
+            case 'upload':
+                notice = 'Please upload a valid JSON file containing the bundle configuration.';
+                break;
+            case 'delete':
+                notice = `Are you sure you want to delete the ${props.target} ${props.target_id}? This action cannot be undone.`;
+                break;
+            case 'merge':
+                notice = `Are you sure you want to update the changes into the ${props.target} ${props.target_id}? This will overwrite existing properties of the ${props.target}.`;
+                break;
+            case 'edit':
+                notice = `Are you sure you want to replace the ${props.target} ${props.target_id}? This will overwrite the entirety of the ${props.target}.`;
+                break;
+            case 'create':
+                notice = `Are you sure you want to create a new ${props.target}?`;
+                break;
+            case 'install':
+                notice = `Are you sure you want to install the ${props.target} ${props.target_id}? This will enable it in the system.`;
+                break;
+            case 'uninstall':
+                notice = `Are you sure you want to uninstall the ${props.target} ${props.target_id}? This will disable it from the system.`;
+                break;
+            default:
+                title = `Action Confirmation`;
+                notice = `Are you sure you want to proceed with this action?`;
+                break; 
+        }
+
+        const shouldUploadFile = 
+            props.action === 'upload'
+            || props.action === 'create'
+            || props.action === 'merge' 
+            || props.action === 'edit';
 
         return { 
-            // Text
+            // UI
             title,
             notice,
+            shouldUploadFile,
             // File handling
             onFileInputchanged,
             // Buttons
@@ -84,34 +114,28 @@ export default {
     <!-- Modal content -->
       <div class="modal-content" @click.stop>
         <h1 id="title">{{title}}</h1>
-        <div id="file_upload_container" class="file-input-container" v-if="action === 'install' && bundle_id">
+        <div id="file_upload_container" class="file-input-container" v-if="shouldUploadFile">
             <div class="custom-file-input">
             <label id="input_label" class="file-input-label">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-                <polyline points="13 2 13 9 20 9"></polyline>
+                <svg>
+                    <use xlink:href="./icons/file.svg#file_icon"></use>
                 </svg>
                 Choose JSON File
                 <input type="file" id="input" accept=".json" @change="onFileInputchanged($event)"/>
             </label>
             </div>
         </div>
-        <div id="notice" class="notice">{{notice}}</div>
+        <div v-if="notice" id="notice" class="notice">{{notice}}</div>
         <div class="button-container">
             <button id="cancel_button" class="btn btn-secondary" @click="cancel_button_clicked">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                <svg>
+                    <use xlink:href="./icons/cancel.svg#cancel_icon"></use>
                 </svg>
                 Cancel
             </button>
-            <button id="confirm_button" class="btn btn-primary" @click="confirm_button_clicked" 
-                :disabled="!bundle_id && !jobspec && (action != 'install' || action != 'uninstall')">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
+            <button id="confirm_button" class="btn btn-primary" @click="confirm_button_clicked">
+                <svg>
+                    <use xlink:href="./icons/confirm.svg#confirm_icon"></use>
                 </svg>
                 Confirm
             </button>

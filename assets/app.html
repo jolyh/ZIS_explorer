@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+</head>
+
+<body>
+
+  <!-- Styles for the app -->
+  <link rel="stylesheet" href="./styles/app.css">
+
+  <!-- Styles for the JobSpecRow component - some styling are shared with general-->
+  <link rel="stylesheet" href="./styles/job-spec-table.css">
+
+  <!-- PreviewBundleDiv component styles -->
+  <link rel="stylesheet" href="./styles/preview-bundle-div.css">
+
+  <!-- ActionModal component styles -->
+  <link rel="stylesheet" href="./styles/action-modal.css">
+
+  <!-- Configuration component styles -->
+  <link rel="stylesheet" href="./styles/configurations-section.css">
+
+  <!-- Zendesk App Framework SDK -->
+  <script src="https://static.zdassets.com/zendesk_app_framework_sdk/2.0/zaf_sdk.min.js"></script>
+
+  <!-- Vue.js -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+  <div id="app_vue">
+
+    <div id="app_container">
+
+      <div id="main_div" :class="{'contracted' : isPreviewExpanded}">
+
+        <div id="toolbar" class="buttons-container">
+          <select id="integration_selection_dropdown" v-model="selectedIntegrationName">
+            <option disabled value="">Please select an integration</option>
+            <option v-for="option in integrations" :value="option.name" style="padding: 8px;">
+              {{ option.name }}
+            </option>
+          </select>
+          <button @click="refreshData(true)" class="refresh-btn" :class="{'btn-loading': isLoading}" :disabled="isLoading"
+            title="Refresh data">
+            <svg>
+              <use xlink:href="./icons/refresh.svg#refresh_icon"></use>
+            </svg>
+          </button>
+          <button v-if="selectedIntegrationName" title="View bundle and jobspecs section" 
+            :disabled="isLoading" :class="{'btn-loading': isLoading}" @click="scrollTo('bundles_jobspecs_section')">
+            Bundles and Jobspecs
+          </button>
+          <!-- API implemented but no design yet
+          <button v-if="selectedIntegrationName" title="View Connections" 
+            :disabled="isLoading" :class="{'btn-loading': isLoading}" @click="scrollTo('connections_section')">
+            Connections
+          </button>
+          -->
+          <button v-if="selectedIntegrationName" title="View configurations section" 
+            :disabled="isLoading" :class="{'btn-loading': isLoading}" @click="scrollTo('configurations_section')">
+            Configurations
+          </button>
+          <!-- Not implemented yet
+          <button v-if="selectedIntegrationName" title="View Links" 
+            :disabled="isLoading" :class="{'btn-loading': isLoading}" @click="scrollTo('links_section')">
+            Links
+          </button>
+          -->
+          <!--Temporary - may be changed to something nicer-->
+          <button id="debug-warning" v-if="settings.isDebugMode">
+            CURRENTLY IN DEBUG MODE
+          </button>
+        </div>
+
+        <div id="top_div"></div>
+
+        <!-- Bundles and Jobspecs Section -->
+        <div id="bundles_jobspecs_section" class="section" v-if="selectedIntegrationName">
+          <h3 class="section-title">Bundles and Jobspecs</h3>
+          
+          <div class="search-container">
+            <div class="search-input">
+              <input type="text" v-model.lazy="bundleFilter" placeholder="Search bundles...">
+            </div>
+            <button class="create-button" @click="modalActions.uploadBundle()" v-if="settings.allow_bundle_upload" title="Upload new bundle" :disabled="isLoading">
+              Create
+            </button>
+          </div>
+          
+          <table id="integration_bundles_table">
+            <thead>
+              <tr id="integration_bundles_table_header_row">
+                <th>uuid</th>
+                <th>name</th>
+                <th>description</th>
+                <th>jobspecs</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Loading state -->
+              <tr v-if="isLoading">
+                <td colspan="5">
+                  <div class="loader-container">
+                    <div class="loader"></div>
+                  </div>
+                </td>
+              </tr>
+              <!-- Data state -->
+              <template v-else-if="filteredBundles && filteredBundles.length > 0" v-for="bundle in filteredBundles" :key="bundle.uuid">
+                <tr class="integration_bundles_table_body_row"
+                  :class="{ 'expanded-row': showJobSpecFor.includes(bundle.uuid) }">
+                  <td>{{ bundle.uuid }}</td>
+                  <td>{{ bundle.name }}</td>
+                  <td>{{ bundle.description }}</td>
+                  <td style="cursor: pointer; color: #03a9f4;" @click="showJobspecClicked(bundle.uuid)">
+                    {{ showJobSpecFor.includes(bundle.uuid) ? 'Hide' : `Show ${bundle.job_specs.length}` }}
+                  </td>
+                  <td>
+                    <div class="table_buttons_container">
+                      <button @click="showBundleClicked(bundle.uuid)" class="icon-button preview-bundle-btn"
+                        :class="{ 'active': shownBundleID === bundle.uuid }"
+                        :title="shownBundleID === bundle.uuid ? 'Hide bundle preview' : 'Preview bundle'">
+                        <svg>
+                          <use xlink:href="./icons/preview.svg#preview_icon"></use>
+                        </svg>
+                      </button>
+                      <button v-if="settings.allow_bundle_deletion"
+                        @click="modalActions.deleteBundle(bundle.uuid)" class="icon-button delete-bundle-btn"
+                        title="Delete bundle">
+                        <svg>
+                          <use xlink:href="./icons/delete.svg#delete_icon"></use>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Inner table showing the job specs for the selected bundle -->
+                <job-spec-table id="job_spec_table" v-if="showJobSpecFor.includes(bundle.uuid)"
+                  :job_specs="bundle.job_specs" :settings="settings" :is_loading="isLoading"
+                  @install_jobspec="modalActions.installJobspec"
+                  @uninstall_jobspec="modalActions.uninstallJobspec">
+                </job-spec-table>
+              </template>
+              <!-- Empty state -->
+              <tr v-else>
+                <td id="no_bundle_row" colspan="5">No bundles available for this integration.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+
+        <!-- Connections Section -->
+        <!-- TBD: Connections are easy to fetch, not easy to display
+        <div id="connections_section" class="section" v-if="selectedIntegrationName">
+          <h3 class="section-title">Connections</h3>
+            <div class="connection-item" v-for="connection in connections" :key="connection.id">
+              <p>{{ connection }}</p>
+            </div>
+        </div>
+        -->
+
+        <!-- Configurations Section -->
+        <div id="configurations_section" class="section" v-if="selectedIntegrationName">
+          <h3 class="section-title">Configurations</h3>
+          <div class="search-container">
+            <div class="search-input">
+              <input type="text" v-model.lazy="configFilter" placeholder="Search configurations...">
+            </div>
+            <button class="create-button" @click="modalActions.createConfiguration()" v-if="settings.allow_config_update" title="Create new configuration" :disabled="isLoading">
+              Create
+            </button>
+          </div>
+          <table v-if="configurations.length > 0" class="config-table">
+            <thead>
+              <tr>
+                <th>Scope</th>
+                <th>Content</th>
+                <th v-if="settings.allow_config_update" class="button_column">Manage</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Loading state -->
+              <tr v-if="isLoading">
+                <td colspan="3">
+                  <div class="loader-container">
+                    <div class="loader"></div>
+                  </div>
+                </td>
+              </tr>
+              <template v-else v-for="(config, index) in filteredConfigurations" :key="index">
+                <!-- Configuration row -->
+                <tr :class="{'expanded-row': expandedConfigIndex === index}" @click="toggleConfigExpansion(index)">
+                  <td>{{ config.scope }}</td>
+                  <td class="config-content">{{ config }}</td>
+                  <td v-if="settings.allow_config_update" class="button_column">
+                    <div class="table_buttons_container">
+                      <button class="icon-button config-button-edit" @click.stop="modalActions.mergeConfiguration(config.scope)"
+                        title="Update">
+                        <svg>
+                          <use xlink:href="./icons/edit.svg#edit_icon"></use>
+                        </svg>
+                      </button>
+                      <button class="icon-button config-button-replace" @click.stop="modalActions.editConfiguration(config.scope)"
+                        title="Replace">
+                        <svg>
+                          <use xlink:href="./icons/replace.svg#replace_icon"></use>
+                        </svg>
+                      </button>
+                      <button class="icon-button config-button-delete" @click.stop="modalActions.deleteConfiguration(config.scope)"
+                        title="Delete">
+                        <svg>
+                          <use xlink:href="./icons/delete.svg#delete_icon"></use>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Expanded content row -->
+                <tr v-if="expandedConfigIndex === index" class="expanded-row-content config-expanded-content">
+                  <td colspan="4">
+                    <pre>{{ JSON.stringify(config, null, 2) }}</pre>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+          <div v-else class="no-data">
+            No configurations found for this integration.
+          </div>
+        </div>
+
+        <!-- Add this to the app.html before the closing body tag -->
+        <div id="back-to-top-btn" class="back-to-top-btn" @click="scrollTo('top_div')" 
+        :class="{ 'back-to-top-btn-preview-open': shownBundleID, 'back-to-top-btn-preview-closed': !shownBundleID }">
+          <svg>
+            <use xlink:href="./icons/arrow_up.svg#arrow_up_icon"></use>
+          </svg>
+        </div>
+
+      </div> <!-- End of main_div -->
+
+      <!-- Modal for actions like update, install, uninstall -->
+      <action-modal v-if="modalState.isOpen" id="action-modal"
+        :action="modalState.action" :target="modalState.target" :target_id="modalState.targetId"
+        @on_confirm="modalActionConfirmation" @on_cancel="resetModalState()" :class="{ active: modalState.isOpen }">
+      </action-modal>
+
+      <!-- Preview Div - hidden until the "see bundle" button is tapped to show the preview -->
+      <preview-bundle-div v-if="shownBundleID" id="preview_div"
+        :bundle_content="filteredBundles.find(bundle => bundle.uuid == shownBundleID).content"
+        :is_preview_expanded="isPreviewExpanded" @toggle_preview_expansion="togglePreviewExpansion"
+        @copy_to_clipboard="copyToClipboard" @update_shown_bundle_id="shownBundleID = ''"
+        :class="{ active: shownBundleID, expanded: isPreviewExpanded }">
+      </preview-bundle-div>
+
+      <!-- Vue and JS -->
+      <script type="module">
+        // Importing necessary functions from the Zendesk API script
+        import {
+          // Initialization functions
+          initClient,
+          getAppSettings,
+          // Zendesk APIs
+          integrationsApi,
+          bundlesApi,
+          jobspecsApi,
+          connectionsApi,
+          configurationsApi,
+          // UI functions
+          displayZendeskNotification
+        } from './scripts/zendesk_api.js'
+
+        // Importing Components
+        import JobSpecTable from './components/JobSpecTable.js'
+        import PreviewBundleDiv from './components/PreviewBundleDiv.js'
+        import ActionModal from './components/ActionModal.js'
+
+        const { createApp, ref, reactive, watch, onBeforeMount, onMounted } = Vue
+
+        const client = await initClient()
+        const settings = await getAppSettings()
+
+        const integrations = ref([]) // List of integrations names - Array
+        const bundles = ref([]) // List of bundles for the selected integration - Array
+        const isLoading = ref(false)
+
+        integrations.value = await integrationsApi.fetch()
+
+        const selectedIntegrationName = ref('') // Name of the selected integration - Comes from the dropdown - String
+        
+        const filteredBundles = ref([])
+        const bundleFilter = ref(null)
+        watch(bundleFilter, (newValue) => {
+          if (newValue) {
+            searchBundles(newValue.toString().trim())
+          } else {
+            filteredBundles.value = bundles.value
+          }
+        })
+        const searchBundles = (query) => {
+          const lowerCaseQuery = query.toLowerCase()
+          filteredBundles.value = bundles.value.filter(bundle =>
+            bundle.name.toLowerCase().includes(lowerCaseQuery)
+          )
+        }
+
+        const fetchAllData = async () => {
+          await Promise.all([
+            fetchBundlesAndJobspecsThenReconcile(selectedIntegrationName.value),
+            //fetchConnectionsForSelectedIntegration(selectedIntegrationName.value),
+            fetchConfigurationsForSelectedIntegration(selectedIntegrationName.value)
+          ]) 
+        }
+        watch(selectedIntegrationName, async (newValue) => {
+          isLoading.value = true
+          await fetchAllData()
+          isLoading.value = false
+        })
+
+        const fetchBundlesAndJobspecsThenReconcile = async (integrationName) => {
+          if (!integrationName) {
+            console.warn('No integration provided, cannot fetch bundles and jobspecs')
+            isLoading.value = false
+            return
+          }
+          const fetchedBundles = await bundlesApi.fetchBundles(integrationName)
+          const fetchedJobspecs = await jobspecsApi.fetch(integrationName)
+
+          for (const bundle of fetchedBundles) {
+            const bundleContent = await bundlesApi.fetchBundle(integrationName, bundle.uuid)
+            bundle.content = bundleContent // Add content to each bundle
+          }
+          bundles.value = jobspecsApi.reconcile(fetchedBundles, fetchedJobspecs)
+          filteredBundles.value = bundles.value // Initialize filtered bundles with all fetched bundles
+          console.log("Bundles reconciled:", bundles.value)
+          isLoading.value = false
+        }
+
+        const showJobSpecFor = ref([]) // List of bundle UUIDs for which job specs are shown - Array
+        const showJobspecClicked = (bundleId) => {
+          if (!bundleId) {
+            console.error('No UUID provided for bundle jobspecs')
+            return
+          }
+          showJobSpecFor.value.includes(bundleId) ?
+            showJobSpecFor.value = showJobSpecFor.value.filter(id => id !== bundleId) :
+            showJobSpecFor.value.push(bundleId)
+
+          console.log("SelectedBundle:", bundleId)
+        }
+
+        const shownBundleID = ref('') // ID of the bundle currently shown in the preview - String
+        const showBundleClicked = (bundleId) => {
+          shownBundleID.value === bundleId ?
+            shownBundleID.value = "" :
+            shownBundleID.value = bundleId
+        }
+
+        // Function to refresh data
+        // Will refresh all data from intregations to bundles and jobspecs and update the UI to match
+        const refreshData = async (refreshIntegration = false) => {
+
+          isLoading.value = true
+          if (refreshIntegration) {
+            // 1. Refresh the integration list
+            integrations.value = await integrationsApi.fetch()
+
+            // 2. Check if there are any integrations available
+            if (integrations.value.length === 0) {
+              console.warn('No integrations available')
+              return
+            }
+          }
+          
+          // 3. Fetched bundles and jobspecs and reconcile them
+          await fetchAllData()
+
+          // 4. Check if the bundles that were displaying jobspecs and/or preview are still available
+          if (showJobSpecFor.value.length > 0) {
+            showJobSpecFor.value = showJobSpecFor.value.filter(bundleId =>
+              bundles.value.some(bundle => bundle.uuid === bundleId)
+            )
+          }
+          if (shownBundleID.value && !bundles.value.some(bundle => bundle.uuid === shownBundleID.value)) {
+            shownBundleID.value = ''
+          }
+
+          isLoading.value = false
+          console.log("Data refreshed")
+
+        }
+
+        // Toggle the preview expansion
+        const isPreviewExpanded = ref(false)
+        export const togglePreviewExpansion = () => {
+
+          isPreviewExpanded.value = !isPreviewExpanded.value
+          const mainDiv = document.getElementById('main_div')
+
+          if (isPreviewExpanded.value) {
+            mainDiv.classList.add('contracted')
+          } else {
+            mainDiv.classList.remove('contracted')
+          }
+
+        }
+
+        //Clipboard 
+        export const copyToClipboard = (text) => {
+          if (!text) {
+            console.error('No text to copy')
+            return
+          }
+          if (typeof text == "object")
+            text = JSON.stringify(text, null, 2) // Convert object to formatted string
+          else if (typeof text != "string")
+            text = String(text) // Ensure it's a string
+
+          navigator.clipboard.writeText(text).then(() => {
+            console.log('Copied to clipboard')
+            displayZendeskNotification('Copied to clipboard', 'success')
+          }).catch(err => {
+            console.error('Failed to copy text:', err)
+          })
+        }
+
+        // ---------------------------
+        // Modal
+        // ---------------------------
+        const modalState = reactive({
+          action: null, // upload, install, uninstall, edit, create, merge, delete - String
+          target: null, // bundle, jobspec, configuration - String
+          targetId: null, // bundleId, jobspec name, configuration scope - String
+          isOpen: false // Modal open state
+        })
+        const resetModalState = () => {
+          modalState.action = null
+          modalState.target = null
+          modalState.targetId = null
+          modalState.isOpen = false
+        }
+        const openActionModal = (action, target, id) => {
+          console.log('Opening modal for action:', action, 'target:', target, 'id:', id)
+          modalState.action = action
+          modalState.target = target
+          modalState.targetId = id
+          modalState.isOpen = true
+          console.log('Modal state updated:', modalState)
+        }
+        const modalActions = {
+          uploadBundle: () => openActionModal('upload', 'bundle', null),
+          deleteBundle: (id) => openActionModal('delete', 'bundle', id),
+          installJobspec: (id) => openActionModal('install', 'jobspec', id),
+          uninstallJobspec: (id) => openActionModal('uninstall', 'jobspec', id),
+          createConfiguration: () => openActionModal('create', 'configuration', null),
+          editConfiguration: (scope) => openActionModal('edit', 'configuration', scope),
+          mergeConfiguration: (scope) => openActionModal('merge', 'configuration', scope),
+          deleteConfiguration: (scope) => openActionModal('delete', 'configuration', scope)
+        }
+
+        /**
+         * Usage:
+         * Bundles:
+         * modalActionConfirmation('upload', 'bundle', null, bundle) ->  upload the bundle
+         * modalActionConfirmation('delete', 'bundle', id, null) ->  delete the bundle
+         * Jobspecs:
+         * modalActionConfirmation('install', 'jobspec', jobspecName) ->  install the jobspec
+         * modalActionConfirmation('uninstall', 'jobspec', jobspecName) ->  uninstall the jobspec
+         * Configurations:
+         * modalActionConfirmation('create', 'configuration', configurationScope, content) ->  create the configuration
+         * etc.
+         */
+        const modalActionConfirmation = async (action, target, targetId = null, content = null) => {
+          console.log('Modal action confirmation:', action, target, targetId, content)
+
+          let result = null
+          isLoading.value = true
+
+          switch (target) {
+            case 'bundle':
+              if (action === 'upload') {
+                result = await bundlesApi.upload(selectedIntegrationName.value, content);
+              } else if (action === 'delete') {
+                result = await bundlesApi.delete(selectedIntegrationName.value, targetId);
+              } else {
+                console.error('No action provided for bundle: ', action);
+              }
+              break;
+            case 'jobspec':
+              if (action === 'install') {
+                result = await jobspecsApi.install(selectedIntegrationName.value, targetId);
+              } else if (action === 'uninstall') {
+                result = await jobspecsApi.uninstall(selectedIntegrationName.value, targetId);
+              } else {
+                console.error('No action provided for jobspec: ', action);
+              }
+              break;
+            case 'configuration':
+              if (action === 'create') {
+                result = await configurationsApi.create(selectedIntegrationName.value, content);
+              } else if (action === 'edit') {
+                result = await configurationsApi.update(selectedIntegrationName.value, targetId, content);
+              } else if (action === 'merge') {
+                result = await configurationsApi.merge(selectedIntegrationName.value, targetId, content);
+              } else if (action === 'delete') {
+                result = await configurationsApi.delete(selectedIntegrationName.value, targetId);
+              } else {
+                console.error('No action provided for configuration: ', action);
+              }
+              break;
+            default:
+              console.error('Unknown target:', target);
+          }
+          // Result handling
+          console.log('Action result:', result)
+          if (result) {
+            console.log(`Succeeded to ${action} the ${target}:`, result)
+            displayZendeskNotification(`Succeeded to ${action} the ${target}. Refreshing...`, 'success');
+            console.log(`Refreshing data after ${action} the ${target}`)
+            await refreshData();
+          } else {
+            console.error(`Failed to ${action} the ${target}`)
+            displayZendeskNotification(`Failed to ${action} the ${target}`, 'error');
+          }
+
+          // Reset modal state after action
+          console.log('Resetting modal state after action')
+          isLoading.value = false
+          resetModalState()
+          console.log('Modal state reset:', modalState)
+          console.log('Action modal confirmation completed')
+        }
+
+        // ---------------------------
+        // CONNECTIONS SECTION
+        // ---------------------------
+        const connections = ref([])
+        const fetchConnectionsForSelectedIntegration = async (integrationName) => {
+          if (!integrationName) {
+            console.warn('No integration selected, cannot fetch connections')
+            return
+          }
+          connections.value = await connectionsApi.fetch(integrationName)
+          console.log("Connections fetched:", connections.value)
+        }
+
+        // ---------------------------
+        // CONFIGURATION SECTION
+        // ---------------------------
+        const configurations = ref([])
+        const fetchConfigurationsForSelectedIntegration = async (integrationName, filter) => {
+          if (!integrationName) {
+            console.warn('No integration selected, cannot fetch configurations')
+            return
+          }
+          configurations.value = await configurationsApi.fetch(integrationName, filter)
+          filteredConfigurations.value = configurations.value
+          //console.log("Configurations fetched:", configurations.value)
+        }
+
+        const filteredConfigurations = ref([])
+        const configFilter = ref(null)
+        watch(configFilter, (newValue) => {
+          if (newValue) {
+            searchConfigurations(newValue.toString().trim())
+          } else {
+            filteredConfigurations.value = configurations.value
+          }
+        })
+        const searchConfigurations = (query) => {
+          const lowerCaseQuery = query.toLowerCase()
+          filteredConfigurations.value = configurations.value.filter(config =>
+            config.scope.toLowerCase().includes(lowerCaseQuery)
+          )
+        }
+
+        const expandedConfigIndex = ref(null)
+        const toggleConfigExpansion = (index) => {
+          expandedConfigIndex.value = expandedConfigIndex.value === index ? null : index
+        }
+
+        // ---------------------------
+        // LINKS SECTION
+        // ---------------------------
+
+        // ---------------------------
+        // Scroll to top functionality
+        // ---------------------------
+        const showBackToTop = ref(false)
+        const scrollTo = (elementId) => {
+          const targetElement = document.getElementById(elementId)
+          targetElement.scrollIntoView({ behavior: 'smooth' })
+        }
+
+        // Create Vue app
+        const app = createApp({
+          components: {
+            JobSpecTable,
+            PreviewBundleDiv,
+            ActionModal
+          },
+          setup() {
+
+            onBeforeMount(() => {
+              showBackToTop.value = true
+            })
+
+            onMounted(() => {
+              const appContainer = document.getElementById('app_container')
+              appContainer.style.display = 'flex'
+              console.log('Vue app mounted and ready')
+            })
+
+            // Regroup the var / method in object? like Preview.ispreviewExpanded? 
+            return {
+              //App settings
+              settings,
+              // General and integration
+              integrations,
+              selectedIntegrationName,
+              isLoading,
+              refreshData,
+              // Bundles and jobspecs section
+              bundleFilter,
+              filteredBundles,
+              showJobSpecFor,
+              shownBundleID,
+              showJobspecClicked,
+              showBundleClicked,
+              // Connections section
+              connections,
+              // Configuration Section
+              configurations,
+              filteredConfigurations,
+              configFilter,
+              expandedConfigIndex,
+              toggleConfigExpansion,
+              // Preview div
+              isPreviewExpanded,
+              togglePreviewExpansion,
+              copyToClipboard,
+              // Action Modal
+              modalState,
+              modalActions,
+              modalActionConfirmation,
+              resetModalState,
+              // Scroll to top FAB
+              showBackToTop,
+              scrollTo
+            }
+          }
+        })
+        app.mount('#app_vue')
+      </script>
+
+    </div> <!-- End of container -->
+
+  </div> <!-- End of app_vue -->
+
+</body>
+
+</html>

@@ -9,7 +9,7 @@
   "private": true,
   "location": {
     "support": {
-      "nav_bar": "assets/iframe.html"
+      "nav_bar": "assets/app.html"
     }
   },
   "parameters": [
@@ -25,6 +25,11 @@
     },
     {
       "name": "allow_jobspec_update",
+      "type": "checkbox",
+      "default": false
+    },
+    {
+      "name": "allow_config_update",
       "type": "checkbox",
       "default": false
     }

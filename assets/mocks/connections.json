@@ -1,0 +1,50 @@
+{
+  "api_key": [
+    {
+      "allowed_domain": "api.example.com",
+      "api_key": "*****",
+      "created_at": "1985-04-12T23:20:50.52Z",
+      "header_name": "x-api-key",
+      "name": "my_api_key_connection",
+      "updated_at": "1985-04-12T23:20:50.52Z"
+    }
+  ],
+  "basic_auth": [
+    {
+      "allowed_domain": "api.example.com",
+      "created_at": "1985-04-12T23:20:50.52Z",
+      "name": "my_basic_auth_connection",
+      "password": "*****",
+      "updated_at": "1985-04-12T23:20:50.52Z",
+      "username": "john.doe@example.com"
+    }
+  ],
+  "bearer_token": [
+    {
+      "allowed_domain": "api.example.com",
+      "created_at": "1985-04-12T23:20:50.52Z",
+      "name": "my_bearer_token_connection",
+      "token": "*****",
+      "updated_at": "1985-04-12T23:20:50.52Z"
+    }
+  ],
+  "meta": {
+    "after": "my_first_connection",
+    "before": "my_tenth_connection",
+    "has_more": true
+  },
+  "oauth": [
+    {
+      "access_token": "ps55XW1CbNj_hKnzwJU3yc968SL39yh3C3Okn1fpC-ThYWDqY2_M5w==",
+      "created_by": "test_user",
+      "name": "my_oauth_connection",
+      "oauth_access_token_response_body": "{\"access_token\":\"ps55XW1CbNj_hKnzwJU3yc968SL39yh3C3Okn1fpC\"}",
+      "oauth_url_subdomain": "foobar",
+      "permission_scope": "read write",
+      "refresh_token": "cs95Xaw_F5PKcxO4fQ9bZKklHKncdkXIc9qGrvktPt2elg==",
+      "token_expiry": "2021-10-01T12:44:22Z",
+      "token_type": "bearer",
+      "uuid": "ac10a230-0c43-45f8-b221-9e085ce90418"
+    }
+  ]
+}

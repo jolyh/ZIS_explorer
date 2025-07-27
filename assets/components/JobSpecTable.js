@@ -1,18 +1,21 @@
 export default {
     props: ['job_specs', 'settings', 'is_loading'],
-    emits: ['update_jobspec'],
+    emits: ['install_jobspec', 'uninstall_jobspec'],
     setup(props, ctx) {
 
-        console.log('job_spec_table setup', props);
-
-        const installation_button_clicked = (action, job_name) => {
-            ctx.emit('update_jobspec', action, job_name);
+        const install_button_clicked = (job_name) => {
+            console.log('Install button clicked for job:', job_name);
+            ctx.emit('install_jobspec', job_name);
         }
-        return { installation_button_clicked }
+        const uninstall_button_clicked = (job_name) => {
+            console.log('Uninstall button clicked for job:', job_name);
+            ctx.emit('uninstall_jobspec', job_name);
+        }
+        return { install_button_clicked, uninstall_button_clicked }
     },
     template: `
-    <tr>
-        <td colspan="6">
+    <tr class="expanded-row-content">
+        <td colspan="5">
             <div class="jobspec-container">
                 <div class="jobspec-title">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"                          
@@ -50,16 +53,16 @@ export default {
                                 </span>
                             </td>
                             <td v-if="settings.allow_jobspec_update">
-                              <button v-if="!job.installed" @click="installation_button_clicked('install', job.name)"
-                                class="see-bundle-btn" :class="{'btn-loading': is_loading}" 
+                              <button v-if="!job.installed" @click="install_button_clicked(job.name)"
+                                :class="{'btn-loading': is_loading}" 
                                 :disabled="is_loading">Install</button>
-                              <button v-else @click="installation_button_clicked('uninstall', job.name)"
-                                class="see-bundle-btn" :class="{'btn-loading': is_loading}" 
+                              <button v-else @click="uninstall_button_clicked(job.name)"
+                                :class="{'btn-loading': is_loading}" 
                                 :disabled="is_loading">Uninstall</button>
                             </td>
                         </tr>
                         <tr v-if="job_specs.length === 0">
-                            <td colspan="6" style="text-align: center; padding: 15px; color: #888;">
+                            <td colspan="5" style="text-align: center; padding: 15px; color: #888;">
                                 No job specifications available for this bundle.
                             </td>
                         </tr>

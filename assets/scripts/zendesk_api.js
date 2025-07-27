@@ -1,11 +1,10 @@
 let client = null;
 let appSettings = null;
+let deletedBundleIds = []
 
-let deleteBundleIds = []
-
-// TODO - Caching ? save result in files?
-// TODO - more error handling than notifications?
-
+// ------------------------
+// Mock datas for testing
+// ------------------------
 const mockDataEnabled = false; // Set to true to enable mock data
 const mockLoadingEnabled = false; // Set to true to fake loading time for mock data
 const mockData = {
@@ -25,7 +24,7 @@ const returnMockData = async (dataRequested) => {
         await randomMockedWait(); // Simulate network delay for mock data - mostly for UI testing
     try {
         // Define the file path
-        const filePath = `./examples/${dataRequested}.json`;
+        const filePath = `./mocks/${dataRequested}.json`;
 
         // Use fetch API to get the file
         const response = await fetch(filePath);
@@ -47,6 +46,10 @@ const returnMockData = async (dataRequested) => {
                 return data || [];
             case 'job_specs':
                 return data.job_specs || [];
+            case 'configurations':
+                return data.configs || [];
+            case 'connections':
+                return data.connections || [];
             default:
                 return data;
         }
@@ -67,15 +70,16 @@ const randomMockedWait = async () => {
     return await wait((Math.floor(Math.random() * 3) + 1) * 1000);
 }
 
-/**
- * Fetch all integrations from the Zendesk Integration Service (ZIS) registry.
- * @returns [] - List of integrations
- */
-export const fetchIntegrations = async () => {
+// ------------------------
+// Integrations
+// ------------------------
+
+// This fetches the list of ZIS integrations.
+const fetchIntegrations = async () => {
     console.log('Fetching integrations...');
     if (mockDataEnabled) {
-        mockData.integrations = await returnMockData('integrations'); // Load mock data for integrations
-        return mockData.integrations; // Return mock data if enabled
+        mockData.integrations = await returnMockData('integrations');
+        return mockData.integrations;
     }
 
     try {
@@ -86,17 +90,23 @@ export const fetchIntegrations = async () => {
         //console.log('Response from Integrations fetched:', result);
         return result.integrations;
     } catch (error) {
-        displayAlertOnError('Error fetching integration job_specs', error);
+        displayAlertOnError('Error fetching integrations', error);
         return [];
     }
 }
+export const integrationsApi = {
+    fetch: fetchIntegrations
+};
 
+// ------------------------
 // Bundles
-export const fetchBundles = async (integrationName) => {
+// ------------------------
+
+const fetchBundles = async (integrationName) => {
     console.log('Fetching bundles...');
     if (mockDataEnabled) {
-        mockData.bundles = await returnMockData('bundles'); // Load mock data for integrations
-        return mockData.bundles; // Return mock data if enabled
+        mockData.bundles = await returnMockData('bundles');
+        return mockData.bundles;
     }
 
     try {
@@ -107,20 +117,20 @@ export const fetchBundles = async (integrationName) => {
         //console.log('Response from Integration bundles fetched:', result);
         return result.bundles;
     } catch (error) {
-        displayAlertOnError('Error fetching integration job_specs', error);
+        displayAlertOnError('Error fetching integration bundles', error);
         return [];
     }
 }
-export const fetchBundle = async (integrationName, bundleId) => {
+const fetchBundle = async (integrationName, bundleId) => {
     console.log('Fetching bundle content...');
     if (mockDataEnabled) {
-        mockData.bundle = await returnMockData('bundle'); // Load mock data for integrations
-        return mockData.bundle; // Return mock data if enabled
+        mockData.bundle = await returnMockData('bundle');
+        return mockData.bundle;
     }
 
-    // If the bundleId is in the deleteBundleIds array, we skip fetching it.
-    if (!integrationName || !bundleId || deleteBundleIds.includes(bundleId)) {
-        console.warn('Skipping fetchBundle due to missing parameters or bundle already deleted:', { integrationName, bundleId, deleteBundleIds });
+    // If the bundleId is in the deletedBundleIds array, we skip fetching it.
+    if (!integrationName || !bundleId || deletedBundleIds.includes(bundleId)) {
+        console.warn('Skipping fetchBundle due to missing parameters or bundle already deleted:', { integrationName, bundleId, deletedBundleIds });
         return {};
     }
 
@@ -136,11 +146,11 @@ export const fetchBundle = async (integrationName, bundleId) => {
         return [];
     }
 }
-export const uploadBundle = async (integrationName, bundle) => {
+const uploadBundle = async (integrationName, bundle) => {
     console.log('Uploading bundle content...');
     if (mockDataEnabled) {
         console.warn('Mock data upload for bundle is not implemented.');
-        return true; // Simulate success for mock data
+        return true;
     }
 
     try {
@@ -156,11 +166,11 @@ export const uploadBundle = async (integrationName, bundle) => {
         return false;
     }
 }
-export const deleteBundle = async (integrationName, bundleId) => {
+const deleteBundle = async (integrationName, bundleId) => {
     console.log('Deleting bundle content...');
     if (mockDataEnabled) {
         console.warn('Mock data delete for bundle is not implemented.');
-        return true; // Simulate success for mock data
+        return true;
     }
 
     // The API for deleting bundles is not available in the ZIS API, so we use the inbound webhook to delete the bundle.
@@ -177,28 +187,29 @@ export const deleteBundle = async (integrationName, bundleId) => {
         return false;
     }
     */
-   return await requestToInboundWebhook(JSON.stringify({
-        bundle: {
-            integration: integrationName,
-            uuid: bundleId
-        }
-    }))
-
+   return await requestToInboundWebhook(
+        JSON.stringify({
+            bundle: {
+                integration: integrationName,
+                uuid: bundleId
+            }
+        }),
+        bundleId
+    );
 }
-
-const inboundWebhookAuth = `Basic ${btoa("username:password")}`; // Replace with actual credentials or use a secure method to store them")}`
-const requestToInboundWebhook = async (data) => {
+const inboundWebhookAuth = `Basic ${btoa("your_auth")}`; // Replace with your actual auth token
+const requestToInboundWebhook = async (data, bundleId) => {
     console.log('Requesting to inbound webhook for deleting bundle...');
     try {
         const result = await client.request({
-            url: `/api/services/zis/inbound_webhooks/generic/ingest/id`,
+            url: `your_inbound_webhook_url`, // Replace with your actual inbound webhook URL
             type: 'POST',
             headers: {
                 Authorization: inboundWebhookAuth,
             },
             data: data
         });
-        deleteBundleIds.push(data.bundle.uuid); // Store the bundle ID to delete later
+        deletedBundleIds.push(bundleId); // Store the bundle ID to delete later
         console.log('Response from inbound webhook:', result);
         return true;
     } catch (error) {
@@ -206,14 +217,22 @@ const requestToInboundWebhook = async (data) => {
         return false;
     }
 }
+export const bundlesApi = {
+    fetchBundles: fetchBundles,
+    fetchBundle: fetchBundle,
+    upload: uploadBundle,
+    delete: deleteBundle
+}
 
+// ------------------------
+// Jobspecs
+// ------------------------
 
-// Jobsecs
-export const fetchJobspecs = async (integrationName) => {
+const fetchJobspecs = async (integrationName) => {
     console.log('Fetching job_specs...');
     if (mockDataEnabled) {
-        mockData.job_specs = await returnMockData('job_specs'); // Load mock data for integrations
-        return mockData.job_specs; // Return mock data if enabled
+        mockData.job_specs = await returnMockData('job_specs');
+        return mockData.job_specs;
     }
 
     try {
@@ -221,18 +240,17 @@ export const fetchJobspecs = async (integrationName) => {
             url: `/api/services/zis/registry/${integrationName}/job_specs`,
             type: 'GET'
         });
-        //console.log('Response from Integration job_specs fetched:', result);
         return result.job_specs;
     } catch (error) {
         displayAlertOnError('Error fetching integration job_specs', error);
         return [];
     }
 }
-export const installJobspec = async (integrationName, jobspecName) => {
+const installJobspec = async (integrationName, jobspecName) => {
     console.log('Installing jobspecs...');
     if (mockDataEnabled) {
-        mockData.job_specs = await returnMockData('job_specs'); // Load mock data for integrations
-        mockData.job_specs[0].installed = true; // Simulate successful installation
+        mockData.job_specs = await returnMockData('job_specs');
+        mockData.job_specs[0].installed = true;
         return true;
     }
 
@@ -247,11 +265,11 @@ export const installJobspec = async (integrationName, jobspecName) => {
         return false;
     }
 }
-export const uninstallJobspec = async (integrationName, jobspecName) => {
+const uninstallJobspec = async (integrationName, jobspecName) => {
     console.log('Uninstalling job_specs...', integrationName, jobspecName);
     if (mockDataEnabled) {
-        mockData.job_specs = await returnMockData('job_specs'); // Load mock data for integrations
-        mockData.job_specs[0].installed = false; // Simulate successful uninstallation
+        mockData.job_specs = await returnMockData('job_specs');
+        mockData.job_specs[0].installed = false;
         return true;
     }
 
@@ -269,10 +287,8 @@ export const uninstallJobspec = async (integrationName, jobspecName) => {
 
 // Reconcile bundles with job_specs
 // The jobspecs do not link to the bundles directly, so we parse the content of the bundle.
-export const reconcileJobspecsToBundles = (bundles, job_specs) => {
-    console.log('Reconcile job_specs to bundles...');
-    console.log('bundles:', bundles);
-    console.log('job_specs:', job_specs);
+const reconcileJobspecsToBundles = (bundles, job_specs) => {
+    console.log('Reconcile job_specs to bundles...', { bundles, job_specs });
     const reconciled = bundles.map(bundle => {
         const matchingJobSpecs = job_specs.filter(job_spec => bundle.content.resources.hasOwnProperty(job_spec.name));
         return {
@@ -284,7 +300,149 @@ export const reconcileJobspecsToBundles = (bundles, job_specs) => {
     return reconciled;
 }
 
+export const jobspecsApi = {
+    fetch: fetchJobspecs,
+    install: installJobspec,
+    uninstall: uninstallJobspec,
+    reconcile: reconcileJobspecsToBundles
+}
+
+// ------------------------
+// Connections
+// ------------------------
+// TODO - this is not tested yet
+const fetchConnections = async (integrationName) => {
+    console.log('Fetching connections...');
+    if (mockDataEnabled) {
+        mockData.integrations = await returnMockData('connections');
+        return mockData.integrations;
+    }
+
+    try {
+        const result = await client.request({
+            url: `/api/services/zis/integrations/${integrationName}/connections/all`,
+            type: 'GET'
+        });
+        console.log('Response from Connections fetched:', result);
+        return result;
+    } catch (error) {
+        displayAlertOnError('Error fetching integration connections', error);
+        return [];
+    }
+}
+
+export const connectionsApi = {
+    fetch: fetchConnections
+}
+
+// ------------------------
+// Configurations
+// ------------------------
+const fetchConfigurations = async (integrationName, filter) => {
+    console.log('Fetching configurations...');
+    if (mockDataEnabled) {
+        mockData.integrations = await returnMockData('configurations');
+        return mockData.integrations;
+    }
+
+    try {
+        const result = await client.request({
+            url: `/api/services/zis/integrations/${integrationName}/configs?filter[scope]=${filter? filter : '*'}`,
+            type: 'GET'
+        });
+        return result.configs;
+    } catch (error) {
+        displayAlertOnError('Error fetching integration configurations', error);
+        return [];
+    }
+}
+const createConfiguration = async (integrationName, config) => {
+    console.log('Creating configuration...', { integrationName, config });
+    if (mockDataEnabled) {
+        console.warn('Mock data upload for config is not implemented.');
+        return true;
+    }
+
+    try {
+        const result = await client.request({
+            url: `/api/services/zis/integrations/${integrationName}/configs`,
+            type: 'POST',
+            data: config
+        });
+        return result.config;
+    } catch (error) {
+        displayAlertOnError('Error creating integration configuration', error);
+        return null;
+    }
+}
+const updateConfiguration = async (integrationName, scope, config) => {
+    console.log('Updating configuration...', { integrationName, scope, config });
+    if (mockDataEnabled) {
+        console.warn('Mock data upload for config is not implemented.');
+        return true;
+    }
+
+    try {
+        const result = await client.request({
+            url: `/api/services/zis/integrations/${integrationName}/configs/${scope}`,
+            type: 'PUT',
+            data: config
+        });
+        return result;
+    } catch (error) {
+        displayAlertOnError('Error updating integration configuration', error);
+        return false;
+    }
+}
+const mergeConfiguration = async (integrationName, scope, config) => {
+    console.log('Merging configuration...', { integrationName, scope, config });
+    if (mockDataEnabled) {
+        console.warn('Mock data upload for config is not implemented.');
+        return true;
+    }
+
+    try {
+        const result = await client.request({
+            url: `/api/services/zis/integrations/${integrationName}/configs/${scope}`,
+            type: 'PATCH',
+            data: config
+        });
+        return result;
+    } catch (error) {
+        displayAlertOnError('Error merging integration configuration', error);
+        return false;
+    }
+}
+const deleteConfiguration = async (integrationName, scope) => {
+    console.log('Deleting configuration...', { integrationName, scope });
+    if (mockDataEnabled) {
+        console.warn('Mock data delete for config is not implemented.');
+        return true;
+    }
+
+    try {
+        const result = await client.request({
+            url: `/api/services/zis/integrations/${integrationName}/configs/${scope}`,
+            type: 'DELETE'
+        });
+        return true;
+    } catch (error) {
+        displayAlertOnError('Error deleting integration configuration', error);
+        return false;
+    }
+}
+
+export const configurationsApi = {
+    fetch: fetchConfigurations,
+    create: createConfiguration,
+    update: updateConfiguration,
+    merge: mergeConfiguration,
+    delete: deleteConfiguration
+}
+
+// ------------------------
 // Zendesk Notifications
+// ------------------------
 const displayAlertOnError = (errorMessage, error) => {
     console.error(errorMessage, error);
     const alertMessage = `An error occurred: ${errorMessage}`;
@@ -294,30 +452,24 @@ export const displayZendeskNotification = (message, notificationType) => {
     client.invoke('notify', message, notificationType);
 }
 
-// Zendesk App Settings
+// ------------------------
+// Zendesk App settings and client
+// ------------------------
 export const getAppSettings = async () => {
-    if (appSettings) {
-        console.log("Using cached app settings");
-        return appSettings.settings;
-    }
+    if (appSettings) { return appSettings.settings; }
     appSettings = await client.metadata();
-    console.log("fetchAppSettings called");
-    console.log(appSettings);
-    var settings = appSettings.settings || {}; // should send null instead?
+    //console.log("fetchAppSettings called:", appSettings);
+    var settings = appSettings.settings || {};
     settings.isDebugMode = mockDataEnabled;
     return settings;
 }
-
 export const initClient = async () => {
-    if (client) {
-        console.warn("ZAFClient is already initialized.");
-        return client;
-    }
-    client = ZAFClient.init();
-    console.log("ZAFClient initialized");
+    if (client) { return client; }
+    client = await ZAFClient.init();
+    //console.log("ZAFClient initialized");
     return client;
 }
 
 (async () => {
-    client = await initClient()
+    client = await initClient();
 })();

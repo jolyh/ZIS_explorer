@@ -1,14 +1,14 @@
 [
     {
         "description": "https://developer.zendesk.com/api-reference/integration-services/registry/bundles/#show-bundle-by-uuid",
-        "integration": "my_integration",
+        "integration": "my_mocked_integration",
         "name": "example bundle",
         "uuid": "5c722550-4180-4b64-9bcd-f8e38baac15d",
         "zendesk_account_id": 12345,
         "zis_template_version": "2019-10-14",
         "content": {
             "description": "https://developer.zendesk.com/api-reference/integration-services/registry/bundles/#show-bundle-by-uuid",
-            "integration": "my_integration",
+            "integration": "my_mocked_integration",
             "name": "example bundle",
             "resources": {
                 "example_flow": {
@@ -49,7 +49,7 @@
                 "flow_name": "zis:integration_name:flow:Flow",
                 "installed": true,
                 "integration": "integration_name",
-                "name": "Jobspec",
+                "name": "example_job_spec",
                 "uuid": "d89e9965-c879-4b7a-9eb4-32efc34bb877"
             }
         ]

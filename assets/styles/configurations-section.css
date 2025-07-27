@@ -1,0 +1,51 @@
+/* Config table styles */
+.config-table th,
+.config-table td {
+    width: 50%;
+}
+
+.config-table td.config-content {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.config-table tr:hover {
+    cursor: pointer;
+}
+
+.config-table .button_column {
+    text-align: center;
+}
+
+/* Expanded row */
+.config-expanded-content {
+    text-align: left;
+    font-family: monospace;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.config-expanded-content pre {
+    text-wrap: auto;
+    word-break: keep-all;
+}
+
+/* Action buttons */
+.config-button-edit {
+    color: #2196f3;
+}
+
+.config-button-replace {
+    color: #2196f3;
+}
+
+.config-button-delete {
+    color: #e53935;
+}
+
+.config-button-delete:hover {
+    background-color: rgba(244, 87, 3, 0.1);
+}

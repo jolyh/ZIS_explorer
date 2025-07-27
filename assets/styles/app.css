@@ -1,0 +1,451 @@
+/* Global styling and shared components  */
+body {
+    overflow: hidden;
+    margin: 5px;
+    height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* General styles for buttons */
+button {
+    background: linear-gradient(to right, #03a9f4, #00bcd4);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+button:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.icon-button {
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.icon-button svg {
+    width: 32px;
+    height: 32px;
+    transition: all 0.2s ease;
+    transform: scale(1.4);
+}
+.icon-button:hover {
+    background-color: rgba(3, 169, 244, 0.1);
+    transform: scale(1.2);
+}
+.icon-button:active {
+    transform: scale(0.95);
+}
+.create-button {
+    background: linear-gradient(to right, #4caf50, #8bc34a);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-weight: 500;
+}
+
+/* search input styles */
+.search-container {
+    display: flex;
+    align-items: center;
+}
+.search-input {
+    display: flex;
+}
+.search-input input {
+    min-width: 300px;
+    padding: 12px 20px 12px 40px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    background-image: url('../icons/magnifier.svg');
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    background-size: 16px 16px;
+}
+.search-input input:focus {
+    outline: none;
+    border-color: #03a9f4;
+    box-shadow: 0 1px 3px rgba(3, 169, 244, 0.2);
+}
+
+/* Section styles */
+.section {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    gap: 5px;
+}
+
+.section-title {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+/* General styles for buttons */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    word-break: break-all;
+}
+
+table thead {
+    background: linear-gradient(to right, #03a9f4, #00bcd4);
+    color: white;
+}
+
+table th {
+    text-align: left;
+    padding: 12px 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+table tbody {
+    background-color: white;
+}
+table tbody tr {
+    background-color: white;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+table tbody tr td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+    overflow-x: hidden;
+}
+
+table tbody .expanded-row {
+    padding-left: 15px;
+    background-color: #f5f7fa !important;
+    overflow-x: hidden;
+}
+table tbody .expanded-row-content {
+    background-color: #f5f7fa;
+    border-bottom: 1px solid #e0e0e0;
+    white-space: pre-wrap;
+    overflow-x: hidden;
+}
+
+/* App */
+#app_container {
+    display: none;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Main div - always on screen  */
+#main_div {
+    flex: 1;
+    z-index: 1;
+    padding-right: 15px;
+    padding-bottom: 20px;
+    overflow-y: scroll;
+}
+
+#main_div.contracted {
+    width: 0;
+    padding: 0;
+    transition: width 0.3s ease;
+}
+
+.buttons-container {
+    display: flex;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0px;
+    background-color: white;
+    z-index: 10;
+    flex-direction: row;
+    align-items: center;
+    justify-content: normal;
+    gap: 10px;
+    padding: 10px 0px;
+}
+
+#integration_selection_dropdown {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 16px;
+    color: #333;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#integration_selection_dropdown:hover {
+    border-color: #03a9f4;
+    box-shadow: 0 2px 5px rgba(3, 169, 244, 0.2);
+}
+
+.refresh-btn svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.5s ease;
+}
+
+.refresh-btn:hover svg {
+    transform: rotate(360deg);
+}
+
+.buttons-container button a {
+    color: white;
+    text-decoration: none;
+}
+
+#debug-warning {
+    background: #ffeb3b;
+    color: #333;
+}
+
+/* Loader styles */
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    width: 100%;
+}
+
+.loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #03a9f4;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1.5s linear infinite;
+}
+
+/* Smaller loader for inline use */
+.loader-sm {
+    border-width: 3px;
+    width: 20px;
+    height: 20px;
+}
+
+/* Button with loader */
+.btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.btn-loading .loader-sm {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+#upload_bundle_button {
+    width: 150px;
+    height: auto;
+}
+
+/* Integration's details table, top table displays the bundles info */
+#integration_bundles_table {
+    table-layout: fixed;
+}
+
+/* Set specific widths for the main table columns */
+/* UUID column */
+#integration_bundles_table th:nth-child(1),
+#integration_bundles_table td:nth-child(1) {
+    width: 20%;
+}
+
+/* Name column */
+#integration_bundles_table th:nth-child(2),
+#integration_bundles_table td:nth-child(2) {
+    width: 25%;
+}
+
+/* Description column */
+#integration_bundles_table th:nth-child(3),
+#integration_bundles_table td:nth-child(3) {
+    width: 25%;
+}
+
+/* Jobspecs column */
+#integration_bundles_table th:nth-child(4),
+#integration_bundles_table td:nth-child(4) {
+    width: 15%;
+    text-align: center;
+}
+
+/* Button column */
+#integration_bundles_table th:nth-child(5),
+#integration_bundles_table td:nth-child(5) {
+    width: 15%;
+    text-align: center;
+}
+
+#integration_bundles_table_header_row {
+    background: linear-gradient(to right, #03a9f4, #00bcd4);
+    color: white;
+}
+
+#integration_bundles_table_header_row th {
+    text-align: left;
+    padding: 12px 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.integration_bundles_table_body_row {
+    background-color: white;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.integration_bundles_table_body_row td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    overflow-x: hidden;
+}
+
+.integration_bundles_table_body_row:hover {
+    background-color: #f9f9f9;
+}
+
+/* Preview icon button */
+.table_buttons_container {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    padding-inline: 5px;
+}
+
+.preview-bundle-btn {
+    color: #03a9f4;
+}
+.preview-bundle-btn:hover svg {
+    color: #0288d1;
+}
+.preview-bundle-btn.active {
+    background-color: rgba(3, 169, 244, 0.15);
+    color: #0277bd;
+}
+
+/* Delete bundle button */
+.delete-bundle-btn {
+    color: #e53935;
+}
+.delete-bundle-btn:hover {
+    background-color: rgba(244, 87, 3, 0.1);
+}
+.delete-bundle-btn:hover svg {
+    color: #c62828;
+}
+
+/* Back to top button */
+.back-to-top-btn {
+    position: fixed;
+    bottom: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(to right, #03a9f4, #00bcd4);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    opacity: 0.9;
+}
+
+.back-to-top-btn-preview-closed {
+    right: 30px;
+}
+
+.back-to-top-btn-preview-open {
+    right: 42%;
+}
+
+.back-to-top-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+    opacity: 1;
+}
+
+.back-to-top-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Animation for the button */
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.back-to-top-btn:hover svg {
+    animation: bounce 1s infinite;
+}

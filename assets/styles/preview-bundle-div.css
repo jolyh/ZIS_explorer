@@ -10,14 +10,15 @@
     border-radius: 8px;
     border: 1px solid #eaeaea;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    font-size: 14px;
+    font-size: 12px;
     line-height: 1.6;
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
 #preview_div.active {
     width: 40%;
-    display: block;
+    display: flex;
+    flex-direction: column;
     /* position:absolute; */
     /* If we want to display over the main div and avoid resize */
     top: 0;
@@ -30,44 +31,39 @@
 }
 
 /* Icon buttons in the preview to copy or close the preview*/
-#preview_div .icon_btn {
-    background-color: transparent;
+#preview_div button {
+    background: transparent;
     border: none;
     border-radius: 50%;
-    width: 30px;
-    height: 30px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.2s, transform 0.2s;
     position: absolute;
-}
-
-#preview_div .icon_btn:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-    transform: scale(1.1);
-}
-
-#preview_div .icon_btn svg {
-    width: 20px;
-    height: 20px;
-}
-
-#preview_div .expand_btn {
-    top: 20px;
-    align-items: center;
     color: #5c5e5c;
+    box-shadow: none;
+}
+
+#preview_div button:hover {
+    transform: scale(1.4);
+}
+
+#preview_div button svg {
+    width: 36px;
+    height: 36px;
 }
 
 #preview_div .copy_btn {
-    top: 20px;
     right: 50px;
-    color: #5c5e5c;
 }
 
 #preview_div .close_btn {
-    top: 20px;
     right: 20px;
-    color: #5c5e5c;
+}
+
+#preview_div pre {
+    margin: 36px 8px 8px 8px;
 }

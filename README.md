@@ -1,18 +1,17 @@
 # ZIS Explorer
 
+Development in progress.
+
 This app allows you to easily visualise the ZIS bundles and installed jobspecs associated with your Zendesk account's integration(s).
 You can preview bundle content and upload new ones as well as see job specs statuses and manage them.
 
 ### The following information is displayed:
 
-* List of your account's integration.
-* For the selected integration, list of all the bundles associated.
-* List of all the job spec associated with a bundle.
-* Preview of the bundle.
-* Preview can content can be copied and preview can be expanded to take more screenspace.
-* Upload bundles
-* Delete bundles (currently requires a Zis flow and an inbound webhook)
-* Install/uninstall jobspecs
+* List of your account's integrations.
+* Upload bundles and delete bundles (currently requires a ZIS flow and an inbound webhook).
+* List and manage your job specs.
+* Preview and copy of the bundle.
+* List and manage your configurations
 
 Please submit bug reports to [Insert Link](). Pull requests are welcome.
 
@@ -25,8 +24,8 @@ Please submit bug reports to [Insert Link](). Pull requests are welcome.
 ![Screenshot of the app with the upload modal open](/assets/screenshots/app_visual_with_upload_modal.png "App with the upload modal open")
 
 ![Screenshot of the app with the job spec modal open](/assets/screenshots/app_visual_with_jobspec_modal.png "App with the job spec modal open")
- 
-### Dependencies 
+
+### Dependencies
 
 This apps is using [Vue.js](https://vuejs.org/guide/introduction.html) imported using unpkg following [Vue.js quickstart guide](https://vuejs.org/guide/quick-start.html#using-the-global-build).
 

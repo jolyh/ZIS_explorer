@@ -1,0 +1,37 @@
+{
+    "meta": {
+        "has_more": false
+    },
+    "next": null,
+    "configs": [
+        {
+            "id": 1234567,
+            "scope": "my_scope",
+            "zendesk_account_id": 123456789,
+            "integration": "my_mocked_integration",
+            "config": {
+                "description": "A config object can be anything, this is an example.",
+                "id": 999,
+                "name": "my_config"
+            },
+            "created_at": "2025-07-19T22:09:43Z",
+            "updated_at": "2025-07-19T22:09:43Z"
+        },
+        {
+            "id": 12345678,
+            "scope": "my_scope2",
+            "zendesk_account_id": 123456789,
+            "integration": "my_mocked_integration",
+            "config": {
+                "description": "A config object can be anything, this is an example2.",
+                "id": 998,
+                "name": "my_config2"
+            },
+            "created_at": "2025-07-19T22:09:43Z",
+            "updated_at": "2025-07-19T22:09:43Z"
+        }
+    ],
+    "links": {
+        "next": ""
+    }
+}

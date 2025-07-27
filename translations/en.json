@@ -15,6 +15,10 @@
       "allow_jobspec_update": { 
         "label": "Allow to update job specs?", 
         "helpText": "Check this settings to be able to install or uninstall job spec through the app." 
+      },
+      "allow_config_update": {
+        "label": "Allow to update config?",
+        "helpText": "Check this settings to be able to update confi (replace, merge and delete) through the app."
       }
     }
   }
