@@ -11,7 +11,9 @@ const mockData = {
     integrations: [],
     bundles: [],
     bundle: {},
-    job_specs: []
+    job_specs: [],
+    connections: [],
+    configurations: []
 };
 /**
  * Returns mock data from a JSON file based on the requested type.
@@ -49,7 +51,7 @@ const returnMockData = async (dataRequested) => {
             case 'configurations':
                 return data.configs || [];
             case 'connections':
-                return data.connections || [];
+                return data || [];
             default:
                 return data;
         }
@@ -314,8 +316,9 @@ export const jobspecsApi = {
 const fetchConnections = async (integrationName) => {
     console.log('Fetching connections...');
     if (mockDataEnabled) {
-        mockData.integrations = await returnMockData('connections');
-        return mockData.integrations;
+        mockData.connections = await returnMockData('connections');
+        console.log('Mock data for connections:', mockData.connections);
+        return mockData.connections;
     }
 
     try {
@@ -341,8 +344,8 @@ export const connectionsApi = {
 const fetchConfigurations = async (integrationName, filter) => {
     console.log('Fetching configurations...');
     if (mockDataEnabled) {
-        mockData.integrations = await returnMockData('configurations');
-        return mockData.integrations;
+        mockData.configurations = await returnMockData('configurations');
+        return mockData.configurations;
     }
 
     try {

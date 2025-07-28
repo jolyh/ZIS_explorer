@@ -1,7 +1,19 @@
 /* Config table styles */
-.config-table th,
-.config-table td {
+.config-table {
+    table-layout: fixed;
+}
+
+.config-table th:nth-child(1),
+.config-table td:nth-child(1) {
+    width: 25%;
+}
+.config-table th:nth-child(2),
+.config-table td:nth-child(2) {
     width: 50%;
+}
+.config-table th:nth-child(3),
+.config-table td:nth-child(3) {
+    width: 25%;
 }
 
 .config-table td.config-content {

@@ -1,8 +1,21 @@
 # Patch logs
 
+## 28/07/2025
+
+### Updates
+
+- Connections Added
+- Connections can be filtered
+- New components and styling added
+
+### Issues
+
+Deleting bundle cannot be done yet by API, this is a product limitation for now.
+
 ## 27/07/2025
 
 ### Updates
+
 - Configurations Added
 - Configuration can be created, updated and merged by uploading a file with the config and can be deleted
 - New parameter to allow to udpate configurations
@@ -14,11 +27,13 @@
 - You can now search for bundles (and configurations)
 
 ### Issues
+
 Deleting bundle cannot be done yet by API, this is a product limitation for now.
 
 ## 21/07/2025
 
 ### Updates
+
 - Removal of Zendesk modal for easier handling
 - New modal for the confirmation events
 - Improvements on table, inner tables and preview
@@ -28,4 +43,5 @@ Deleting bundle cannot be done yet by API, this is a product limitation for now.
 - Addind a button to show if in DEBUG mode
 
 ### Issues
+
 Deleting bundle cannot be done yet by API, this is a product limitation for now.

@@ -11,11 +11,12 @@ You can preview bundle content and upload new ones as well as see job specs stat
 * Upload bundles and delete bundles (currently requires a ZIS flow and an inbound webhook).
 * List and manage your job specs.
 * Preview and copy of the bundle.
-* List and manage your configurations
+* List, manage and preview your configurations.
+* List and preview your connections.
 
 Please submit bug reports to [Insert Link](). Pull requests are welcome.
 
-### Screenshot(s):
+### Example screenshot(s) (see more in screenshots folder):
 
 ![Screenshot of the app without the preview open](/assets/screenshots/app_visual_no_preview.png "App without preview")
 
@@ -37,7 +38,8 @@ The app offer 3 optional settings to allow for a read-only app.
 - Allowing deletion of bundles
 - Allowing job specs installation/uninstallation
 
-### Testing 
+### Testing
+
 * Configure `zcli` on your desktop. 
 * Run the app via terminal using `zcli apps:server`.
 * Open your Zendesk account and add `/agent/apps/zis-explorer?zcli_apps=true` to the url.
@@ -46,6 +48,7 @@ The app offer 3 optional settings to allow for a read-only app.
 Note: you can provide mock data in the "/assets/examples/" folder in json format for 'bundle.json', 'bundles.json', 'integrations.json' and 'job_specs.json' and set `mockDataEnabled` to `true` in `zendesk_api.js`
 
 ### Useful APIs
+
 * [ZAF documentation](https://developer.zendesk.com/documentation/apps/app-developer-guide/using-the-apps-framework/)
 * [Using zcli](https://developer.zendesk.com/documentation/apps/getting-started/using-zcli/)
 * [ZAF APIs](https://developer.zendesk.com/api-reference/apps/apps-core-api/client_api/)

@@ -13,14 +13,17 @@
   <!-- Styles for the JobSpecRow component - some styling are shared with general-->
   <link rel="stylesheet" href="./styles/job-spec-table.css">
 
+  <!-- Connection section styles -->
+  <link rel="stylesheet" href="./styles/connections-section.css">
+
+  <!-- Configuration section styles -->
+  <link rel="stylesheet" href="./styles/configurations-section.css">
+
   <!-- PreviewBundleDiv component styles -->
   <link rel="stylesheet" href="./styles/preview-bundle-div.css">
 
   <!-- ActionModal component styles -->
   <link rel="stylesheet" href="./styles/action-modal.css">
-
-  <!-- Configuration component styles -->
-  <link rel="stylesheet" href="./styles/configurations-section.css">
 
   <!-- Zendesk App Framework SDK -->
   <script src="https://static.zdassets.com/zendesk_app_framework_sdk/2.0/zaf_sdk.min.js"></script>
@@ -35,30 +38,28 @@
       <div id="main_div" :class="{'contracted' : isPreviewExpanded}">
 
         <div id="toolbar" class="buttons-container">
-          <select id="integration_selection_dropdown" v-model="selectedIntegrationName">
+          <select class="dropdown" v-model="selectedIntegrationName">
             <option disabled value="">Please select an integration</option>
-            <option v-for="option in integrations" :value="option.name" style="padding: 8px;">
+            <option v-for="option in integrations" :value="option.name">
               {{ option.name }}
             </option>
           </select>
-          <button @click="refreshData(true)" class="refresh-btn" :class="{'btn-loading': isLoading}" :disabled="isLoading"
-            title="Refresh data">
+          <button @click="refreshData(true)" class="refresh-btn" :class="{'btn-loading': isLoading}"
+            :disabled="isLoading" title="Refresh data">
             <svg>
               <use xlink:href="./icons/refresh.svg#refresh_icon"></use>
             </svg>
           </button>
-          <button v-if="selectedIntegrationName" title="View bundle and jobspecs section" 
-            :disabled="isLoading" :class="{'btn-loading': isLoading}" @click="scrollTo('bundles_jobspecs_section')">
+          <button v-if="selectedIntegrationName" title="View bundle and jobspecs section" :disabled="isLoading"
+            :class="{'btn-loading': isLoading}" @click="scrollTo('bundles_jobspecs_section')">
             Bundles and Jobspecs
           </button>
-          <!-- API implemented but no design yet
           <button v-if="selectedIntegrationName" title="View Connections" 
             :disabled="isLoading" :class="{'btn-loading': isLoading}" @click="scrollTo('connections_section')">
             Connections
           </button>
-          -->
-          <button v-if="selectedIntegrationName" title="View configurations section" 
-            :disabled="isLoading" :class="{'btn-loading': isLoading}" @click="scrollTo('configurations_section')">
+          <button v-if="selectedIntegrationName" title="View configurations section" :disabled="isLoading"
+            :class="{'btn-loading': isLoading}" @click="scrollTo('configurations_section')">
             Configurations
           </button>
           <!-- Not implemented yet
@@ -78,16 +79,17 @@
         <!-- Bundles and Jobspecs Section -->
         <div id="bundles_jobspecs_section" class="section" v-if="selectedIntegrationName">
           <h3 class="section-title">Bundles and Jobspecs</h3>
-          
+
           <div class="search-container">
             <div class="search-input">
               <input type="text" v-model.lazy="bundleFilter" placeholder="Search bundles...">
             </div>
-            <button class="create-button" @click="modalActions.uploadBundle()" v-if="settings.allow_bundle_upload" title="Upload new bundle" :disabled="isLoading">
-              Create
+            <button class="create-button" @click="modalActions.uploadBundle()" v-if="settings.allow_bundle_upload"
+              title="Upload new bundle" :disabled="isLoading">
+              Upload Bundle
             </button>
           </div>
-          
+
           <table id="integration_bundles_table">
             <thead>
               <tr id="integration_bundles_table_header_row">
@@ -108,7 +110,8 @@
                 </td>
               </tr>
               <!-- Data state -->
-              <template v-else-if="filteredBundles && filteredBundles.length > 0" v-for="bundle in filteredBundles" :key="bundle.uuid">
+              <template v-else-if="filteredBundles && filteredBundles.length > 0" v-for="bundle in filteredBundles"
+                :key="bundle.uuid">
                 <tr class="integration_bundles_table_body_row"
                   :class="{ 'expanded-row': showJobSpecFor.includes(bundle.uuid) }">
                   <td>{{ bundle.uuid }}</td>
@@ -126,9 +129,8 @@
                           <use xlink:href="./icons/preview.svg#preview_icon"></use>
                         </svg>
                       </button>
-                      <button v-if="settings.allow_bundle_deletion"
-                        @click="modalActions.deleteBundle(bundle.uuid)" class="icon-button delete-bundle-btn"
-                        title="Delete bundle">
+                      <button v-if="settings.allow_bundle_deletion" @click="modalActions.deleteBundle(bundle.uuid)"
+                        class="icon-button delete-bundle-btn" title="Delete bundle">
                         <svg>
                           <use xlink:href="./icons/delete.svg#delete_icon"></use>
                         </svg>
@@ -140,8 +142,7 @@
                 <!-- Inner table showing the job specs for the selected bundle -->
                 <job-spec-table id="job_spec_table" v-if="showJobSpecFor.includes(bundle.uuid)"
                   :job_specs="bundle.job_specs" :settings="settings" :is_loading="isLoading"
-                  @install_jobspec="modalActions.installJobspec"
-                  @uninstall_jobspec="modalActions.uninstallJobspec">
+                  @install_jobspec="modalActions.installJobspec" @uninstall_jobspec="modalActions.uninstallJobspec">
                 </job-spec-table>
               </template>
               <!-- Empty state -->
@@ -150,92 +151,50 @@
               </tr>
             </tbody>
           </table>
-        </div>
+        </div> <!-- End of bundles and jobspecs section -->
 
 
         <!-- Connections Section -->
-        <!-- TBD: Connections are easy to fetch, not easy to display
         <div id="connections_section" class="section" v-if="selectedIntegrationName">
           <h3 class="section-title">Connections</h3>
-            <div class="connection-item" v-for="connection in connections" :key="connection.id">
-              <p>{{ connection }}</p>
-            </div>
+          <select class="dropdown" v-model="connectionFilter">
+            <option v-for="option in connectionType" :value="option.value">
+              {{ option.value }}
+            </option>
+          </select>
+
+          <connections-table :connections="connections" :connection_filter="connectionFilter"
+            :is_loading="isLoading">
+          </connections-table>
+
         </div>
-        -->
 
         <!-- Configurations Section -->
         <div id="configurations_section" class="section" v-if="selectedIntegrationName">
+
           <h3 class="section-title">Configurations</h3>
           <div class="search-container">
             <div class="search-input">
               <input type="text" v-model.lazy="configFilter" placeholder="Search configurations...">
             </div>
-            <button class="create-button" @click="modalActions.createConfiguration()" v-if="settings.allow_config_update" title="Create new configuration" :disabled="isLoading">
+            <button class="create-button" @click="modalActions.createConfiguration()"
+              v-if="settings.allow_config_update" title="Create new configuration" :disabled="isLoading">
               Create
             </button>
           </div>
-          <table v-if="configurations.length > 0" class="config-table">
-            <thead>
-              <tr>
-                <th>Scope</th>
-                <th>Content</th>
-                <th v-if="settings.allow_config_update" class="button_column">Manage</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Loading state -->
-              <tr v-if="isLoading">
-                <td colspan="3">
-                  <div class="loader-container">
-                    <div class="loader"></div>
-                  </div>
-                </td>
-              </tr>
-              <template v-else v-for="(config, index) in filteredConfigurations" :key="index">
-                <!-- Configuration row -->
-                <tr :class="{'expanded-row': expandedConfigIndex === index}" @click="toggleConfigExpansion(index)">
-                  <td>{{ config.scope }}</td>
-                  <td class="config-content">{{ config }}</td>
-                  <td v-if="settings.allow_config_update" class="button_column">
-                    <div class="table_buttons_container">
-                      <button class="icon-button config-button-edit" @click.stop="modalActions.mergeConfiguration(config.scope)"
-                        title="Update">
-                        <svg>
-                          <use xlink:href="./icons/edit.svg#edit_icon"></use>
-                        </svg>
-                      </button>
-                      <button class="icon-button config-button-replace" @click.stop="modalActions.editConfiguration(config.scope)"
-                        title="Replace">
-                        <svg>
-                          <use xlink:href="./icons/replace.svg#replace_icon"></use>
-                        </svg>
-                      </button>
-                      <button class="icon-button config-button-delete" @click.stop="modalActions.deleteConfiguration(config.scope)"
-                        title="Delete">
-                        <svg>
-                          <use xlink:href="./icons/delete.svg#delete_icon"></use>
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <!-- Expanded content row -->
-                <tr v-if="expandedConfigIndex === index" class="expanded-row-content config-expanded-content">
-                  <td colspan="4">
-                    <pre>{{ JSON.stringify(config, null, 2) }}</pre>
-                  </td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-          <div v-else class="no-data">
-            No configurations found for this integration.
-          </div>
-        </div>
+
+          <configurations-table :filtered_configurations="filteredConfigurations"
+            :allow_config_update="settings.allow_config_update" :is_loading="isLoading"
+            @edit="modalActions.editConfiguration" @merge="modalActions.mergeConfiguration"
+            @delete="modalActions.deleteConfiguration">
+          </configurations-table>
+        
+        </div> <!-- End of configurations section -->
+
 
         <!-- Add this to the app.html before the closing body tag -->
-        <div id="back-to-top-btn" class="back-to-top-btn" @click="scrollTo('top_div')" 
-        :class="{ 'back-to-top-btn-preview-open': shownBundleID, 'back-to-top-btn-preview-closed': !shownBundleID }">
+        <div id="back-to-top-btn" class="back-to-top-btn" @click="scrollTo('top_div')"
+          :class="{ 'back-to-top-btn-preview-open': shownBundleID, 'back-to-top-btn-preview-closed': !shownBundleID }">
           <svg>
             <use xlink:href="./icons/arrow_up.svg#arrow_up_icon"></use>
           </svg>
@@ -244,9 +203,9 @@
       </div> <!-- End of main_div -->
 
       <!-- Modal for actions like update, install, uninstall -->
-      <action-modal v-if="modalState.isOpen" id="action-modal"
-        :action="modalState.action" :target="modalState.target" :target_id="modalState.targetId"
-        @on_confirm="modalActionConfirmation" @on_cancel="resetModalState()" :class="{ active: modalState.isOpen }">
+      <action-modal v-if="modalState.isOpen" id="action-modal" :action="modalState.action" :target="modalState.target"
+        :target_id="modalState.targetId" @on_confirm="modalActionConfirmation" @on_cancel="resetModalState()"
+        :class="{ active: modalState.isOpen }">
       </action-modal>
 
       <!-- Preview Div - hidden until the "see bundle" button is tapped to show the preview -->
@@ -278,6 +237,8 @@
         import JobSpecTable from './components/JobSpecTable.js'
         import PreviewBundleDiv from './components/PreviewBundleDiv.js'
         import ActionModal from './components/ActionModal.js'
+        import ConnectionsTable from './components/ConnectionsTable.js'
+        import ConfigurationsTable from './components/ConfigurationsTable.js'
 
         const { createApp, ref, reactive, watch, onBeforeMount, onMounted } = Vue
 
@@ -289,9 +250,10 @@
         const isLoading = ref(false)
 
         integrations.value = await integrationsApi.fetch()
+        console.log("Integrations fetched:", integrations.value)
 
         const selectedIntegrationName = ref('') // Name of the selected integration - Comes from the dropdown - String
-        
+
         const filteredBundles = ref([])
         const bundleFilter = ref(null)
         watch(bundleFilter, (newValue) => {
@@ -311,9 +273,9 @@
         const fetchAllData = async () => {
           await Promise.all([
             fetchBundlesAndJobspecsThenReconcile(selectedIntegrationName.value),
-            //fetchConnectionsForSelectedIntegration(selectedIntegrationName.value),
+            fetchConnectionsForSelectedIntegration(selectedIntegrationName.value),
             fetchConfigurationsForSelectedIntegration(selectedIntegrationName.value)
-          ]) 
+          ])
         }
         watch(selectedIntegrationName, async (newValue) => {
           isLoading.value = true
@@ -375,7 +337,7 @@
               return
             }
           }
-          
+
           // 3. Fetched bundles and jobspecs and reconcile them
           await fetchAllData()
 
@@ -461,19 +423,6 @@
           mergeConfiguration: (scope) => openActionModal('merge', 'configuration', scope),
           deleteConfiguration: (scope) => openActionModal('delete', 'configuration', scope)
         }
-
-        /**
-         * Usage:
-         * Bundles:
-         * modalActionConfirmation('upload', 'bundle', null, bundle) ->  upload the bundle
-         * modalActionConfirmation('delete', 'bundle', id, null) ->  delete the bundle
-         * Jobspecs:
-         * modalActionConfirmation('install', 'jobspec', jobspecName) ->  install the jobspec
-         * modalActionConfirmation('uninstall', 'jobspec', jobspecName) ->  uninstall the jobspec
-         * Configurations:
-         * modalActionConfirmation('create', 'configuration', configurationScope, content) ->  create the configuration
-         * etc.
-         */
         const modalActionConfirmation = async (action, target, targetId = null, content = null) => {
           console.log('Modal action confirmation:', action, target, targetId, content)
 
@@ -539,6 +488,13 @@
         // CONNECTIONS SECTION
         // ---------------------------
         const connections = ref([])
+        const connectionFilter = ref('basic_auth')
+        const connectionType = [
+          { value: 'basic_auth' },
+          { value: 'oauth' },
+          { value: 'api_key' },
+          { value: 'bearer_token' }
+        ]
         const fetchConnectionsForSelectedIntegration = async (integrationName) => {
           if (!integrationName) {
             console.warn('No integration selected, cannot fetch connections')
@@ -578,11 +534,6 @@
           )
         }
 
-        const expandedConfigIndex = ref(null)
-        const toggleConfigExpansion = (index) => {
-          expandedConfigIndex.value = expandedConfigIndex.value === index ? null : index
-        }
-
         // ---------------------------
         // LINKS SECTION
         // ---------------------------
@@ -601,7 +552,9 @@
           components: {
             JobSpecTable,
             PreviewBundleDiv,
-            ActionModal
+            ActionModal,
+            ConnectionsTable,
+            ConfigurationsTable
           },
           setup() {
 
@@ -633,12 +586,12 @@
               showBundleClicked,
               // Connections section
               connections,
+              connectionFilter,
+              connectionType,
               // Configuration Section
               configurations,
               filteredConfigurations,
               configFilter,
-              expandedConfigIndex,
-              toggleConfigExpansion,
               // Preview div
               isPreviewExpanded,
               togglePreviewExpansion,

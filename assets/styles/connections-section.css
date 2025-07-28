@@ -1,0 +1,33 @@
+/* Config table styles */
+.connections-table  {
+    table-layout: fixed;
+}
+.connections-table th:nth-child(1),
+.connections-table td:nth-child(1){
+    width: 20%;
+}
+.connections-table th:nth-child(2),
+.connections-table td:nth-child(2){
+    width: 80%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.connections-table tr:hover {
+    cursor: pointer;
+}
+
+/* Expanded row */
+.connection-expanded-content {
+    text-align: left;
+    font-family: monospace;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.connection-expanded-content pre {
+    text-wrap: auto;
+    word-break: keep-all;
+}

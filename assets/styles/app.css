@@ -112,6 +112,26 @@ button:active {
     font-weight: 600;
 }
 
+/* Dropdown styles */
+.dropdown {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 16px;
+    color: #333;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+.dropdown:hover {
+    border-color: #03a9f4;
+    box-shadow: 0 2px 5px rgba(3, 169, 244, 0.2);
+}
+
 /* General styles for buttons */
 table {
     width: 100%;
@@ -120,14 +140,11 @@ table {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    word-break: break-all;
 }
-
 table thead {
     background: linear-gradient(to right, #03a9f4, #00bcd4);
     color: white;
 }
-
 table th {
     text-align: left;
     padding: 12px 15px;
@@ -143,6 +160,7 @@ table tbody tr {
     background-color: white;
     transition: all 0.2s ease;
     font-size: 14px;
+    word-break: break-all;
 }
 table tbody tr:hover {
     background-color: #f9f9f9;
@@ -154,12 +172,12 @@ table tbody tr td {
     overflow-x: hidden;
 }
 
-table tbody .expanded-row {
+.expanded-row {
     padding-left: 15px;
     background-color: #f5f7fa !important;
     overflow-x: hidden;
 }
-table tbody .expanded-row-content {
+.expanded-row-content {
     background-color: #f5f7fa;
     border-bottom: 1px solid #e0e0e0;
     white-space: pre-wrap;
@@ -201,26 +219,6 @@ table tbody .expanded-row-content {
     justify-content: normal;
     gap: 10px;
     padding: 10px 0px;
-}
-
-#integration_selection_dropdown {
-    width: 100%;
-    max-width: 400px;
-    padding: 10px 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #fff;
-    font-size: 16px;
-    color: #333;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    appearance: none;
-    cursor: pointer;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-#integration_selection_dropdown:hover {
-    border-color: #03a9f4;
-    box-shadow: 0 2px 5px rgba(3, 169, 244, 0.2);
 }
 
 .refresh-btn svg {

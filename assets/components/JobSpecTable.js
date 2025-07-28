@@ -1,20 +1,20 @@
 export default {
-    props: ['job_specs', 'settings', 'is_loading'],
-    emits: ['install_jobspec', 'uninstall_jobspec'],
-    setup(props, ctx) {
+  props: ['job_specs', 'settings', 'is_loading'],
+  emits: ['install_jobspec', 'uninstall_jobspec'],
+  setup(props, ctx) {
 
-        const install_button_clicked = (job_name) => {
-            console.log('Install button clicked for job:', job_name);
-            ctx.emit('install_jobspec', job_name);
-        }
-        const uninstall_button_clicked = (job_name) => {
-            console.log('Uninstall button clicked for job:', job_name);
-            ctx.emit('uninstall_jobspec', job_name);
-        }
-        return { install_button_clicked, uninstall_button_clicked }
-    },
-    template: `
-    <tr class="expanded-row-content">
+    const install_button_clicked = (job_name) => {
+      console.log('Install button clicked for job:', job_name);
+      ctx.emit('install_jobspec', job_name);
+    }
+    const uninstall_button_clicked = (job_name) => {
+      console.log('Uninstall button clicked for job:', job_name);
+      ctx.emit('uninstall_jobspec', job_name);
+    }
+    return { install_button_clicked, uninstall_button_clicked }
+  },
+  template: `
+     <tr class="expanded-row-content">
         <td colspan="5">
             <div class="jobspec-container">
                 <div class="jobspec-title">
@@ -70,5 +70,6 @@ export default {
                 </table>
             </div>
         </td>
-    </tr>`
+      </tr>
+    `
 }
