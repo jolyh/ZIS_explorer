@@ -3,7 +3,7 @@
 This app allows you to easily visualise the ZIS bundles and installed jobspecs associated with your Zendesk account's integration(s).
 You can preview bundle content and upload new ones as well as see job specs statuses and manage them.
 
-> This is not a Zendesk owned not developed app.
+> This is not a Zendesk owned nor developed app.
 
 ### The following information is displayed:
 
@@ -64,4 +64,4 @@ Note: you can provide mock data in the "/assets/mocks/" folder in json format fo
 
 ### Icon credits
 
-[Testing icons created by smashingstocks - Flaticon]("https://www.flaticon.com/free-icons/testing")
+[Testing icons created by smashingstocks - Flaticon](https://www.flaticon.com/free-icons/testing)

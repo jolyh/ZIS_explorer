@@ -2,8 +2,10 @@
 
 ## 16/08/2025
 
+### Updates 
+
 - General code and UI improvement
-- App now has an Icon, credits to: [Testing icons created by smashingstocks - Flaticon]("https://www.flaticon.com/free-icons/testing")
+- App now has an Icon, credits to: [Testing icons created by smashingstocks - Flaticon](https://www.flaticon.com/free-icons/testing)
 - Added number of installed jobs beside "Show x" in table
 - Copy button for Configuration content
 - When no configuration is present, GET configuration returns a 404, which was counted as a general error instead of the expected return. This is now handled properly and reflected in UI.
