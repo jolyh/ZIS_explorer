@@ -26,7 +26,7 @@ export default {
         </svg>
       </button>
 
-      <button @click="copy_button_clicked" class="copy_btn" title="Copy to clipboard">
+      <button @click="copy_button_clicked" class="copy-btn" title="Copy to clipboard">
         <svg>
           <use xlink:href="./icons/copy.svg#copy_icon"></use>
         </svg>

@@ -1,9 +1,9 @@
 # ZIS Explorer
 
-Development in progress.
-
 This app allows you to easily visualise the ZIS bundles and installed jobspecs associated with your Zendesk account's integration(s).
 You can preview bundle content and upload new ones as well as see job specs statuses and manage them.
+
+> This is not a Zendesk owned not developed app.
 
 ### The following information is displayed:
 
@@ -37,6 +37,7 @@ The app offer 3 optional settings to allow for a read-only app.
 - Allowing uploading of bundles
 - Allowing deletion of bundles
 - Allowing job specs installation/uninstallation
+- Allowing config creation, update and deletion
 
 ### Testing
 
@@ -45,7 +46,7 @@ The app offer 3 optional settings to allow for a read-only app.
 * Open your Zendesk account and add `/agent/apps/zis-explorer?zcli_apps=true` to the url.
 * Enjoy.
 
-Note: you can provide mock data in the "/assets/examples/" folder in json format for 'bundle.json', 'bundles.json', 'integrations.json' and 'job_specs.json' and set `mockDataEnabled` to `true` in `zendesk_api.js`
+Note: you can provide mock data in the "/assets/mocks/" folder in json format for 'bundle.json', 'bundles.json', 'integrations.json' and 'job_specs.json' and set `mockDataEnabled` to `true` in `zendesk_api.js`
 
 ### Useful APIs
 
@@ -60,3 +61,7 @@ Note: you can provide mock data in the "/assets/examples/" folder in json format
 * [Bundles APIs](https://developer.zendesk.com/api-reference/integration-services/registry/bundles/)
 * [Job specs APIs](https://developer.zendesk.com/api-reference/integration-services/registry/jobspecs/)
 * [ZIS inbound webhook](https://developer.zendesk.com/documentation/integration-services/zis-tutorials/getting-started/using-zis-inbound-webhooks/)
+
+### Icon credits
+
+[Testing icons created by smashingstocks - Flaticon]("https://www.flaticon.com/free-icons/testing")

@@ -7,6 +7,8 @@ let deletedBundleIds = []
 // ------------------------
 const mockDataEnabled = false; // Set to true to enable mock data
 const mockLoadingEnabled = false; // Set to true to fake loading time for mock data
+const minLoadingTime = 1; // Minimum loading time in milliseconds - default is 1 second
+const maxLoadingTime = 3; // Maximum loading time in milliseconds - default is 3 seconds
 const mockData = {
     integrations: [],
     bundles: [],
@@ -22,8 +24,9 @@ const mockData = {
  * @returns 
  */
 const returnMockData = async (dataRequested) => {
-    if (mockLoadingEnabled)
+    if (mockLoadingEnabled) {
         await randomMockedWait(); // Simulate network delay for mock data - mostly for UI testing
+    }
     try {
         // Define the file path
         const filePath = `./mocks/${dataRequested}.json`;
@@ -65,11 +68,11 @@ const wait = (milliseconds) => new Promise((resolve, _) => {
     setTimeout(resolve, milliseconds);
 });
 /** 
- * Simulates a random wait time between 1 and 3 seconds.
+ * Simulates a random wait time.
  * This is used to simulate network delay for mock data.
  */
 const randomMockedWait = async () => { 
-    return await wait((Math.floor(Math.random() * 3) + 1) * 1000);
+    return await wait((Math.floor(Math.random() * maxLoadingTime) + minLoadingTime) * 1000);
 }
 
 // ------------------------
@@ -199,12 +202,16 @@ const deleteBundle = async (integrationName, bundleId) => {
         bundleId
     );
 }
-const inboundWebhookAuth = `Basic ${btoa("your_auth")}`; // Replace with your actual auth token
+
+const inboundWebhookUrl = ``; // Replace with your actual inbound webhook URL
+const inboundWebhookUsernamePassword = ""; // Replace with your actual auth token
+
+const inboundWebhookAuth = `Basic ${btoa(inboundWebhookUsernamePassword)}`; 
 const requestToInboundWebhook = async (data, bundleId) => {
     console.log('Requesting to inbound webhook for deleting bundle...');
     try {
         const result = await client.request({
-            url: `your_inbound_webhook_url`, // Replace with your actual inbound webhook URL
+            url: `${inboundWebhookUrl}`,
             type: 'POST',
             headers: {
                 Authorization: inboundWebhookAuth,
@@ -312,7 +319,6 @@ export const jobspecsApi = {
 // ------------------------
 // Connections
 // ------------------------
-// TODO - this is not tested yet
 const fetchConnections = async (integrationName) => {
     console.log('Fetching connections...');
     if (mockDataEnabled) {
@@ -355,6 +361,10 @@ const fetchConfigurations = async (integrationName, filter) => {
         });
         return result.configs;
     } catch (error) {
+        if (error.status === 404) { // Expected when no configurations are found
+            console.warn('No configurations found for this integration:', integrationName);
+            return [];
+        }
         displayAlertOnError('Error fetching integration configurations', error);
         return [];
     }

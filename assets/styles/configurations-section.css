@@ -7,10 +7,12 @@
 .config-table td:nth-child(1) {
     width: 25%;
 }
+
 .config-table th:nth-child(2),
 .config-table td:nth-child(2) {
-    width: 50%;
+    width: 75%;
 }
+
 .config-table th:nth-child(3),
 .config-table td:nth-child(3) {
     width: 25%;
@@ -43,6 +45,17 @@
 .config-expanded-content pre {
     text-wrap: auto;
     word-break: keep-all;
+}
+
+.config-copy-button {
+    width: 36px;
+    height: 36px;
+    color: #2196f3;
+    background: transparent;
+    float: right;
+    border: none;
+    border-radius: 50%;
+    box-shadow: none;
 }
 
 /* Action buttons */

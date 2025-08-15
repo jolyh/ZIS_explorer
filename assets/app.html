@@ -96,7 +96,7 @@
                 <th>uuid</th>
                 <th>name</th>
                 <th>description</th>
-                <th>jobspecs</th>
+                <th>jobspecs (installed)</th>
                 <th></th>
               </tr>
             </thead>
@@ -118,7 +118,7 @@
                   <td>{{ bundle.name }}</td>
                   <td>{{ bundle.description }}</td>
                   <td style="cursor: pointer; color: #03a9f4;" @click="showJobspecClicked(bundle.uuid)">
-                    {{ showJobSpecFor.includes(bundle.uuid) ? 'Hide' : `Show ${bundle.job_specs.length}` }}
+                    {{ showJobSpecFor.includes(bundle.uuid) ? 'Hide' : `Show ${bundle.job_specs.length} (${bundle.job_specs.filter(js => js.installed).length})` }}
                   </td>
                   <td>
                     <div class="table_buttons_container">
@@ -138,10 +138,9 @@
                     </div>
                   </td>
                 </tr>
-
                 <!-- Inner table showing the job specs for the selected bundle -->
                 <job-spec-table id="job_spec_table" v-if="showJobSpecFor.includes(bundle.uuid)"
-                  :job_specs="bundle.job_specs" :settings="settings" :is_loading="isLoading"
+                  :job_specs="bundle.job_specs" :allow_jobspec_update="settings.allow_jobspec_update" :is_loading="isLoading"
                   @install_jobspec="modalActions.installJobspec" @uninstall_jobspec="modalActions.uninstallJobspec">
                 </job-spec-table>
               </template>
@@ -186,7 +185,7 @@
           <configurations-table :filtered_configurations="filteredConfigurations"
             :allow_config_update="settings.allow_config_update" :is_loading="isLoading"
             @edit="modalActions.editConfiguration" @merge="modalActions.mergeConfiguration"
-            @delete="modalActions.deleteConfiguration">
+            @delete="modalActions.deleteConfiguration" @copy_to_clipboard="copyToClipboard">
           </configurations-table>
         
         </div> <!-- End of configurations section -->
@@ -211,7 +210,7 @@
       <!-- Preview Div - hidden until the "see bundle" button is tapped to show the preview -->
       <preview-bundle-div v-if="shownBundleID" id="preview_div"
         :bundle_content="filteredBundles.find(bundle => bundle.uuid == shownBundleID).content"
-        :is_preview_expanded="isPreviewExpanded" @toggle_preview_expansion="togglePreviewExpansion"
+        :is_preview_expanded="isPreviewExpanded" @toggle_preview_expansion="isPreviewExpanded = !isPreviewExpanded"
         @copy_to_clipboard="copyToClipboard" @update_shown_bundle_id="shownBundleID = ''"
         :class="{ active: shownBundleID, expanded: isPreviewExpanded }">
       </preview-bundle-div>
@@ -250,7 +249,7 @@
         const isLoading = ref(false)
 
         integrations.value = await integrationsApi.fetch()
-        console.log("Integrations fetched:", integrations.value)
+        //console.log("Integrations fetched:", integrations.value)
 
         const selectedIntegrationName = ref('') // Name of the selected integration - Comes from the dropdown - String
 
@@ -358,18 +357,6 @@
 
         // Toggle the preview expansion
         const isPreviewExpanded = ref(false)
-        export const togglePreviewExpansion = () => {
-
-          isPreviewExpanded.value = !isPreviewExpanded.value
-          const mainDiv = document.getElementById('main_div')
-
-          if (isPreviewExpanded.value) {
-            mainDiv.classList.add('contracted')
-          } else {
-            mainDiv.classList.remove('contracted')
-          }
-
-        }
 
         //Clipboard 
         export const copyToClipboard = (text) => {
@@ -508,6 +495,8 @@
         // CONFIGURATION SECTION
         // ---------------------------
         const configurations = ref([])
+        const filteredConfigurations = ref([])
+        const configFilter = ref(null)
         const fetchConfigurationsForSelectedIntegration = async (integrationName, filter) => {
           if (!integrationName) {
             console.warn('No integration selected, cannot fetch configurations')
@@ -517,9 +506,6 @@
           filteredConfigurations.value = configurations.value
           //console.log("Configurations fetched:", configurations.value)
         }
-
-        const filteredConfigurations = ref([])
-        const configFilter = ref(null)
         watch(configFilter, (newValue) => {
           if (newValue) {
             searchConfigurations(newValue.toString().trim())
@@ -594,7 +580,6 @@
               configFilter,
               // Preview div
               isPreviewExpanded,
-              togglePreviewExpansion,
               copyToClipboard,
               // Action Modal
               modalState,

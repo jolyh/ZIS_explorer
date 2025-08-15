@@ -1,5 +1,13 @@
 # Patch logs
 
+## 16/08/2025
+
+- General code and UI improvement
+- App now has an Icon, credits to: [Testing icons created by smashingstocks - Flaticon]("https://www.flaticon.com/free-icons/testing")
+- Added number of installed jobs beside "Show x" in table
+- Copy button for Configuration content
+- When no configuration is present, GET configuration returns a 404, which was counted as a general error instead of the expected return. This is now handled properly and reflected in UI.
+
 ## 28/07/2025
 
 ### Updates
@@ -7,10 +15,6 @@
 - Connections Added
 - Connections can be filtered
 - New components and styling added
-
-### Issues
-
-Deleting bundle cannot be done yet by API, this is a product limitation for now.
 
 ## 27/07/2025
 
@@ -26,10 +30,6 @@ Deleting bundle cannot be done yet by API, this is a product limitation for now.
 - SVGs are now files
 - You can now search for bundles (and configurations)
 
-### Issues
-
-Deleting bundle cannot be done yet by API, this is a product limitation for now.
-
 ## 21/07/2025
 
 ### Updates
@@ -41,7 +41,3 @@ Deleting bundle cannot be done yet by API, this is a product limitation for now.
 - CSS split into files matching the components
 - Added installation params
 - Addind a button to show if in DEBUG mode
-
-### Issues
-
-Deleting bundle cannot be done yet by API, this is a product limitation for now.
